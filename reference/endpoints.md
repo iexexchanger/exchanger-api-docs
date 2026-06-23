@@ -1,39 +1,39 @@
-# Endpoint matrix
+# Все endpoints
 
-All paths below are relative to:
+Все пути ниже указаны относительно:
 
 ```text
 https://example.com/api/v3
 ```
 
-## Public
+## Публичные endpoints
 
-| Method | Path | Purpose |
+| Метод | Путь | Для чего |
 | --- | --- | --- |
-| `GET` | `/ping` | Public health check. |
+| `GET` | `/ping` | Проверка доступности API. |
 | `GET` | `/openapi.yaml` | OpenAPI specification. |
-| `GET` | `/public/contracts` | Public contract registry. |
-| `GET` | `/public/contracts/{contract}` | One public contract. |
-| `GET` | `/public/schemas` | Public schema registry. |
-| `GET` | `/public/schemas/{schema}` | One public schema. |
-| `GET` | `/public/rates.xml` | Public XML rates. |
-| `GET` | `/public/orders/statuses` | Public order status catalog. |
+| `GET` | `/public/contracts` | Публичный список контрактов. |
+| `GET` | `/public/contracts/{contract}` | Один публичный контракт. |
+| `GET` | `/public/schemas` | Публичный список схем. |
+| `GET` | `/public/schemas/{schema}` | Одна публичная схема. |
+| `GET` | `/public/rates.xml` | Публичный XML-файл курсов. |
+| `GET` | `/public/orders/statuses` | Публичный справочник статусов заявок. |
 
-## Health, client and usage
+## Клиент, health и usage
 
-| Method | Path | Scope |
+| Метод | Путь | Нужный scope |
 | --- | --- | --- |
-| `GET` | `/private/ping` | Any active key |
-| `GET` | `/private/health` | Any active key |
+| `GET` | `/private/ping` | Любой активный ключ |
+| `GET` | `/private/health` | Любой активный ключ |
 | `GET` | `/private/health/client` | `client:health:read` |
 | `GET` | `/private/client` | `public-api:client:read` |
 | `GET` | `/private/account` | `public-api:client:read` |
 | `GET` | `/private/usage` | `usage:read` |
 | `GET` | `/private/scopes` | `scopes:read` |
 
-## Exchange
+## Обмен
 
-| Method | Path | Scope |
+| Метод | Путь | Нужный scope |
 | --- | --- | --- |
 | `GET` | `/private/exchange/payment-systems` | `exchange:routes:read` |
 | `GET` | `/private/exchange/routes` | `exchange:routes:read` |
@@ -53,9 +53,9 @@ https://example.com/api/v3
 | `POST` | `/private/exchange/orders/{order}/cancel` | `exchange:orders:cancel` |
 | `DELETE` | `/private/exchange/orders/{order}` | `exchange:orders:cancel` |
 
-## Files and verifications
+## Файлы и проверки
 
-| Method | Path | Scope |
+| Метод | Путь | Нужный scope |
 | --- | --- | --- |
 | `POST` | `/private/files/upload-intents` | `files:write` |
 | `GET` | `/private/files/upload-intents/{intent}` | `files:read` |
@@ -72,7 +72,7 @@ https://example.com/api/v3
 
 ## Webhooks
 
-| Method | Path | Scope |
+| Метод | Путь | Нужный scope |
 | --- | --- | --- |
 | `GET` | `/private/webhooks` | `webhooks:read` |
 | `POST` | `/private/webhooks` | `webhooks:write` |
@@ -87,9 +87,9 @@ https://example.com/api/v3
 | `DELETE` | `/private/webhooks/{webhook}` | `webhooks:write` |
 | `POST` | `/private/webhooks/{webhook}/rotate-secret` | `webhooks:write` |
 
-## Orders, partner, reviews and sandbox
+## Остальные ресурсы
 
-| Method | Path | Scope |
+| Метод | Путь | Нужный scope |
 | --- | --- | --- |
 | `GET` | `/private/orders/statuses` | `orders:statuses:read` |
 | `GET` | `/private/orders` | `orders:read` |

@@ -1,4 +1,4 @@
-# Troubleshooting
+# Решение частых проблем
 
 ## `401 authentication_required`
 
@@ -22,7 +22,7 @@ Check:
 
 ## `403 scope_denied`
 
-The key does not have the required scope. Compare endpoint with [Endpoint matrix](../reference/endpoints.md), then ask the account owner or administrator to update scopes.
+У ключа нет нужного scope. Сравните endpoint со страницей [Все endpoints](../reference/endpoints.md), затем попросите владельца аккаунта или администратора добавить нужные права.
 
 ## `403 ip_not_allowed`
 
@@ -66,7 +66,7 @@ Fix:
 - cache routes and payment systems briefly;
 - use webhooks instead of frequent polling.
 
-## Webhook signature fails
+## Не проходит подпись webhook
 
 Check:
 
@@ -76,13 +76,12 @@ Check:
 - timestamp and nonce headers are passed correctly;
 - body parser does not consume raw bytes before verification.
 
-## Order created twice
+## Заявка создалась два раза
 
-Most likely the integration retried without `Idempotency-Key` or used a different key for the retry.
+Скорее всего интеграция повторила запрос без `Idempotency-Key` или использовала новый ключ для повтора.
 
 Fix:
 
 - always send `Idempotency-Key` for `POST /private/exchange/orders`;
 - store key with local checkout/session;
 - retry timeout with the same key.
-

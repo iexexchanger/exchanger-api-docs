@@ -1,26 +1,33 @@
-# Rate limits and quotas
+# Лимиты, квоты и Retry-After
 
-API использует два типа ограничений.
+API может ограничивать частоту и общий объем запросов.
 
-| Mechanism | Purpose |
-| --- | --- |
-| Rate limit | Ограничивает частоту запросов в коротком окне. |
-| Quota | Ограничивает общий объем запросов за день или месяц. |
+## Частотный лимит
 
-## Rate limit headers
+Rate limit ограничивает частоту запросов.
+
+Пример headers:
 
 ```http
 X-RateLimit-Limit: 120
 X-RateLimit-Remaining: 118
 X-RateLimit-Reset: 1782190300
+```
+
+Если лимит превышен:
+
+```http
+HTTP/1.1 429 Too Many Requests
 Retry-After: 30
 ```
 
-Если API вернул `429`, клиент должен ждать `Retry-After`.
+Интеграция должна подождать `Retry-After`, а не повторять запрос сразу.
 
-## Quota headers
+## Квота
 
-Ответы могут содержать информацию о дневной и месячной quota:
+Quota ограничивает общий объем запросов за день или месяц.
+
+Пример:
 
 ```http
 X-Api-Quota-Daily-Limit: 10000
@@ -29,7 +36,7 @@ X-Api-Quota-Monthly-Limit: 300000
 X-Api-Quota-Monthly-Remaining: 299120
 ```
 
-## Usage endpoint
+## Как посмотреть usage
 
 ```bash
 curl -sS https://example.com/api/v3/private/usage \
@@ -37,13 +44,10 @@ curl -sS https://example.com/api/v3/private/usage \
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
-Используйте `usage`, чтобы показывать клиенту расход API и заранее предупреждать о приближении к quota.
+## Как уменьшить нагрузку
 
-## How to reduce API usage
-
-- Кэшируйте payment systems и routes на короткое время.
-- Используйте webhooks вместо частого polling.
-- Проверяйте статус заявки по событию, а не каждую секунду.
-- Не вызывайте `quote` на каждый ввод символа; используйте debounce.
-- Объединяйте фильтры в один запрос, если возможно.
-
+- Не запрашивайте статус заявки каждую секунду.
+- Подключите webhooks.
+- Кэшируйте платежные системы и направления на короткое время.
+- Делайте debounce для расчета quote.
+- Не повторяйте `401`, `403`, `422` бесконечно.

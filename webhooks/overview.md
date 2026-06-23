@@ -1,20 +1,22 @@
-# Webhook overview
+# Как подключить webhooks
 
-Webhooks позволяют получать события API без постоянного polling. Используйте их для статусов заявок, проверок, файлов, sandbox-событий, отзывов и партнерских операций.
+Webhooks нужны, чтобы ваше приложение получало события автоматически, без постоянного опроса API.
 
-## When to use webhooks
+Главный пример: статус заявки изменился, iEXExchanger отправил запрос на ваш URL, ваше приложение обновило статус у себя.
 
-| Use case | Event examples |
+## Когда использовать webhooks
+
+| Сценарий | События |
 | --- | --- |
-| Новая заявка создана | `order.created` |
-| Статус заявки изменился | `order.status_changed` |
-| Оплата получена | `order.payment_received` |
-| Пользователь отправил identity verification | `verification.identity.created` |
-| Статус проверки изменился | `verification.identity.status_changed` |
-| Файл загружен | `file.uploaded` |
-| Sandbox test выполнен | `api.sandbox.simulated` |
+| Статусы заявок | `order.created`, `order.status_changed`, `order.payment_received` |
+| Проверки пользователя | `verification.identity.created`, `verification.identity.status_changed` |
+| Проверки карты | `verification.card.created`, `verification.card.status_changed` |
+| Файлы | `file.uploaded` |
+| Sandbox | `api.sandbox.simulated` |
+| Отзывы | `review.created` |
+| Партнерские выплаты | `partner.payout.paid` |
 
-## Create endpoint
+## Создать webhook endpoint
 
 ```bash
 curl -sS https://example.com/api/v3/private/webhooks \
@@ -28,9 +30,9 @@ curl -sS https://example.com/api/v3/private/webhooks \
   }'
 ```
 
-Response includes endpoint data and the webhook secret. Save the secret immediately: it is used to verify delivery signatures.
+В ответе будет webhook secret. Сохраните его сразу. Он нужен для проверки подписи входящих webhook-запросов.
 
-## List endpoints
+## Получить список webhooks
 
 ```bash
 curl -sS https://example.com/api/v3/private/webhooks \
@@ -38,7 +40,7 @@ curl -sS https://example.com/api/v3/private/webhooks \
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
-## Test endpoint
+## Отправить тестовое событие
 
 ```bash
 curl -sS https://example.com/api/v3/private/webhooks/test \
@@ -51,7 +53,7 @@ curl -sS https://example.com/api/v3/private/webhooks/test \
   }'
 ```
 
-## Update endpoint
+## Изменить webhook
 
 ```bash
 curl -sS https://example.com/api/v3/private/webhooks/WEBHOOK_ID \
@@ -65,7 +67,7 @@ curl -sS https://example.com/api/v3/private/webhooks/WEBHOOK_ID \
   }'
 ```
 
-## Rotate secret
+## Сменить webhook secret
 
 ```bash
 curl -sS https://example.com/api/v3/private/webhooks/WEBHOOK_ID/rotate-secret \
@@ -74,24 +76,16 @@ curl -sS https://example.com/api/v3/private/webhooks/WEBHOOK_ID/rotate-secret \
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
-After rotation, update your receiver immediately.
+После смены secret сразу обновите его в своем receiver.
 
-## Receiver requirements
+## Требования к receiver
 
-Your webhook endpoint should:
+Ваш webhook endpoint должен:
 
-- accept `POST`;
-- use HTTPS;
-- verify `X-Webhook-Signature`;
-- return `2xx` only after successful processing;
-- store processed `event_id` to prevent duplicate processing;
-- complete quickly and process heavy work asynchronously.
-
-## Recommended receiver response
-
-```json
-{
-  "received": true
-}
-```
+- принимать `POST`;
+- работать по HTTPS;
+- проверять `X-Webhook-Signature`;
+- сохранять `event_id`;
+- возвращать `2xx` только после успешного сохранения события;
+- обрабатывать повторные события без дублей.
 

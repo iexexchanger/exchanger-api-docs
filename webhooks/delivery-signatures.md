@@ -1,21 +1,21 @@
-# Delivery signatures
+# Как проверить подпись webhook
 
-Every webhook delivery is signed. The receiver must verify the signature before processing the event.
+Каждый webhook delivery подписывается. Receiver должен проверить подпись до обработки события.
 
-## Delivery headers
+## Headers webhook-запроса
 
 ```http
 Content-Type: application/json
-X-Webhook-Event-Id: evt_...
+X-Webhook-Event-Id: evt_01J...
 X-Webhook-Event-Type: order.status_changed
 X-Webhook-Timestamp: 1782190000
 X-Webhook-Nonce: wh_20260623_001
 X-Webhook-Signature: sha256=...
-X-Request-Id: req_...
-X-Correlation-Id: cor_...
+X-Request-Id: req_01J...
+X-Correlation-Id: cor_01J...
 ```
 
-## Canonical string
+## Строка для проверки
 
 ```text
 v1
@@ -26,9 +26,9 @@ nonce
 sha256(json_body)
 ```
 
-Use the raw JSON body exactly as received.
+Используйте raw body, то есть исходные bytes запроса. Не собирайте JSON заново перед проверкой.
 
-## PHP verification example
+## PHP пример проверки
 
 ```php
 function verifyWebhook(
@@ -58,63 +58,21 @@ function verifyWebhook(
 }
 ```
 
-## TypeScript verification example
+## Защита от повторов
 
-```ts
-import crypto from "node:crypto";
-
-export function verifyWebhook({
-  secret,
-  eventId,
-  eventType,
-  timestamp,
-  nonce,
-  rawBody,
-  signature,
-}: {
-  secret: string;
-  eventId: string;
-  eventType: string;
-  timestamp: string;
-  nonce: string;
-  rawBody: Buffer | string;
-  signature: string;
-}) {
-  const body = Buffer.isBuffer(rawBody) ? rawBody : Buffer.from(rawBody);
-  const bodyHash = crypto.createHash("sha256").update(body).digest("hex");
-
-  const canonical = [
-    "v1",
-    eventId,
-    eventType,
-    timestamp,
-    nonce,
-    bodyHash,
-  ].join("\n");
-
-  const expected =
-    "sha256=" + crypto.createHmac("sha256", secret).update(canonical).digest("hex");
-
-  return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(signature));
-}
-```
-
-## Replay protection
-
-Store processed event IDs:
+Сохраняйте:
 
 ```text
 X-Webhook-Event-Id
 ```
 
-If the same event arrives again, return `2xx` and do not repeat business side effects.
+Если такое событие уже обработано, верните `2xx` и не выполняйте бизнес-действие повторно.
 
-## Common mistakes
+## Частые ошибки
 
-| Mistake | Fix |
+| Ошибка | Как исправить |
 | --- | --- |
-| Verifying parsed JSON instead of raw body | Use raw request bytes. |
-| Using API HMAC secret | Use webhook endpoint secret. |
-| Returning `2xx` before persistence | Save event first, then return success. |
-| Treating duplicate event as error | Duplicates are normal during retry. |
-
+| Проверяется parsed JSON, а не raw body | Сохраняйте raw body до парсинга. |
+| Используется API HMAC secret | Для webhook нужен webhook secret. |
+| Receiver возвращает `2xx` до сохранения события | Сначала сохраните событие, потом отвечайте. |
+| Дубликат события считается ошибкой | Дубликаты нормальны при retry, отвечайте `2xx`. |

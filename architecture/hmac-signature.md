@@ -1,25 +1,35 @@
-# HMAC request signing
+# HMAC-подпись запросов
 
-HMAC-подпись защищает приватные запросы от изменения body, query и replay.
+HMAC нужна, чтобы API мог проверить, что запрос действительно отправил владелец ключа и что body/query не изменились по дороге.
 
-## Headers
+## Когда нужна HMAC
 
-| Header | Required | Description |
-| --- | --- | --- |
-| `X-Api-Timestamp` | Да | Unix timestamp или ISO-8601 время. |
-| `X-Api-Nonce` | Да | Уникальная строка 8-128 символов. |
-| `X-Api-Signature` | Да | `sha256={hex_hmac}`. |
-| `X-Api-File-Sha256` | Только upload | SHA-256 файла для multipart requests. |
+HMAC может быть обязательной:
 
-Nonce может содержать:
+- для всех приватных запросов;
+- только для write-запросов: `POST`, `PUT`, `PATCH`, `DELETE`;
+- для конкретного API-ключа.
 
-```text
-A-Z a-z 0-9 . _ : -
+Если HMAC нужна, но headers не переданы, API вернет `signature_required`.
+
+## Headers HMAC-подписи
+
+```http
+X-Api-Timestamp: 1782190000
+X-Api-Nonce: req-20260623-001
+X-Api-Signature: sha256=...
 ```
 
-## Canonical string
+| Header | Что передавать |
+| --- | --- |
+| `X-Api-Timestamp` | Unix timestamp или ISO-8601 время. |
+| `X-Api-Nonce` | Уникальная строка для одного запроса. |
+| `X-Api-Signature` | HMAC-SHA256 подпись. |
+| `X-Api-File-Sha256` | SHA-256 файла для multipart upload. |
 
-Подписывается строка:
+## Строка для подписи
+
+Подписывается такая строка:
 
 ```text
 v1
@@ -31,17 +41,7 @@ timestamp
 nonce
 ```
 
-Важно: path должен включать `/api/v3`.
-
-## GET example
-
-Запрос:
-
-```text
-GET /api/v3/private/exchange/routes?filter[from_currency_id]=1&filter[to_currency_id]=2
-```
-
-Canonical string:
+Пример для GET:
 
 ```text
 v1
@@ -53,11 +53,23 @@ e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
 req-20260623-001
 ```
 
-Пустое тело подписывается SHA-256 от пустой строки.
+Пример для JSON POST:
 
-## JSON POST example
+```text
+v1
+POST
+/api/v3/private/exchange/quotes
 
-Для JSON подписывайте ровно те bytes, которые отправляете в HTTP body.
+SHA256_OF_EXACT_JSON_BODY
+1782190000
+req-20260623-002
+```
+
+Пустой query остается пустой строкой.
+
+## PHP пример
+
+В репозитории есть helper `sdk/php/PublicApiSigner.php`.
 
 ```php
 $body = PublicApiSigner::jsonBody([
@@ -73,62 +85,27 @@ $headers = PublicApiSigner::headers(
 );
 ```
 
-Затем отправляйте тот же `$body`:
-
-```php
-$client->post('https://example.com/api/v3/private/exchange/quotes', [
-    'headers' => [
-        'Accept' => 'application/json',
-        'Content-Type' => 'application/json',
-        'Authorization' => 'Bearer '.$apiKey,
-        ...$headers,
-    ],
-    'body' => $body,
-]);
-```
-
-Не создавайте JSON повторно после подписи: другие пробелы или другой порядок ключей дадут другой hash.
-
-## Query canonicalization
-
-Правила:
-
-- вложенные ключи пишутся как `filter[from_currency_id]`;
-- ключи и значения кодируются по RFC3986;
-- пары сортируются строково;
-- порядок query в исходном URL не важен, если canonical query построен правильно.
-
-Пример:
-
-```text
-filter[from_currency_id]=1&filter[to_currency_id]=2
-```
-
-Canonical query:
-
-```text
-filter%5Bfrom_currency_id%5D=1&filter%5Bto_currency_id%5D=2
-```
+Важно: отправляйте ровно тот `$body`, который подписали.
 
 ## Multipart upload
 
-Для `multipart/form-data` не подписывайте весь multipart body. HTTP-клиент сам добавляет boundary, поэтому итоговые bytes могут отличаться.
+Для upload файла не подписывайте весь multipart body. Подписывайте SHA-256 самого файла:
 
-Правильный порядок:
+```bash
+FILE_SHA=$(sha256sum passport.jpg | awk '{print $1}')
+```
 
-1. Посчитайте SHA-256 файла.
-2. Передайте его в `X-Api-File-Sha256`.
-3. Используйте этот hash как `sha256_body` в canonical string.
-4. Отправьте файл обычным multipart request.
+Передайте:
 
-## Common mistakes
+```http
+X-Api-File-Sha256: FILE_SHA
+```
 
-| Ошибка | Как исправить |
-| --- | --- |
-| Подписан path без `/api/v3` | Всегда подписывайте полный API path. |
-| JSON подписан одним способом, отправлен другим | Подписывайте готовую строку body и отправляйте ее без изменений. |
-| Старый timestamp | Синхронизируйте время сервера. |
-| Повторный nonce | Генерируйте новый nonce на каждый запрос. |
-| Перепутан API secret и webhook secret | Храните их раздельно. |
-| Для upload не указан file hash | Передайте `X-Api-File-Sha256`. |
+## Частые причины `invalid_signature`
 
+- В подписи забыли `/api/v3`.
+- Подписали один JSON, а отправили другой.
+- Query parameters отсортированы не так.
+- Время сервера сильно отличается.
+- Nonce уже использовался.
+- Перепутали API HMAC secret и webhook secret.

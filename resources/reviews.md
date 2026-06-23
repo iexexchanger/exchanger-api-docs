@@ -1,8 +1,8 @@
-# Reviews
+# Отзывы
 
-Reviews API lets integrations read public reviews and create a review for the authenticated client's order.
+Reviews API позволяет читать отзывы и создавать отзыв по заявке клиента.
 
-## List reviews
+## Получить отзывы
 
 ```bash
 curl -sS "https://example.com/api/v3/private/reviews?page=1&per_page=20" \
@@ -10,7 +10,7 @@ curl -sS "https://example.com/api/v3/private/reviews?page=1&per_page=20" \
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
-## Create review
+## Создать отзыв
 
 ```bash
 curl -sS https://example.com/api/v3/private/reviews \
@@ -25,9 +25,5 @@ curl -sS https://example.com/api/v3/private/reviews \
   }'
 ```
 
-## Notes
-
-- A client can usually leave only one review per order.
-- New reviews may require moderation before publication.
-- Use `Idempotency-Key` to avoid duplicate review creation after retry.
+Обычно клиент может оставить один отзыв на одну заявку. Новый отзыв может ожидать модерации.
 

@@ -1,30 +1,26 @@
-# Public XML rates
+# Публичный XML-файл курсов
 
-`GET /public/rates.xml` returns exchange rates in XML format.
+`GET /public/rates.xml` возвращает курсы в XML-формате.
 
 ```bash
 curl -sS https://example.com/api/v3/public/rates.xml
 ```
 
-This endpoint is public and does not use JSON envelope.
+Этот endpoint публичный и не возвращает JSON envelope.
 
-## When to use
+## Когда использовать
 
-Use XML rates for:
+Используйте XML-файл для:
 
-- monitoring services;
-- external catalogs;
-- legacy integrations;
-- simple public rate export.
+- мониторингов;
+- внешних каталогов;
+- legacy-интеграций;
+- простого публичного экспорта курсов.
 
-For interactive exchange forms, use private exchange endpoints instead:
+Для формы обмена лучше использовать приватные exchange endpoints:
 
 - `GET /private/exchange/payment-systems`;
 - `GET /private/exchange/routes`;
 - `GET /private/exchange/routes/{route}/details`;
 - `POST /private/exchange/quotes`.
-
-## Example shape
-
-The exact XML structure depends on the exchange export format. Treat it as a public feed, not as a replacement for private route capabilities.
 

@@ -1,14 +1,12 @@
-# Authentication
+# Авторизация Bearer token
 
-Приватные endpoints используют Bearer token.
+Все приватные endpoints требуют Bearer token.
 
 ```http
 Authorization: Bearer YOUR_API_KEY
 ```
 
-## Проверка доступа
-
-Минимальная проверка:
+## Проверка token
 
 ```bash
 curl -sS https://example.com/api/v3/private/health/client \
@@ -16,37 +14,35 @@ curl -sS https://example.com/api/v3/private/health/client \
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
-Успешный ответ означает, что:
+Если token работает, API вернет `state: 0`.
 
-- token существует;
-- клиентский аккаунт активен;
-- API-доступ для клиента включен;
-- token не отозван и не отключен;
-- IP отправителя разрешен, если включен allow-list.
+## Что проверяет API
 
-## Когда использовать HMAC
+При каждом приватном запросе API проверяет:
 
-Bearer token подтверждает, кто делает запрос. HMAC дополнительно подтверждает, что тело запроса, query string и timestamp не были изменены.
+1. Передан ли Bearer token.
+2. Существует ли такой token.
+3. Активен ли аккаунт клиента.
+4. Включен ли API-доступ клиенту.
+5. Активен ли сам ключ.
+6. Не истек ли срок ключа.
+7. Разрешен ли IP, если включен allow-list.
+8. Есть ли нужный scope для endpoint.
+9. Нужна ли HMAC-подпись.
 
-Для production write-запросов HMAC должен быть включен почти всегда.
+## Типичные ошибки доступа
 
-## Типичные ошибки
-
-| HTTP | Code | Что проверить |
+| HTTP | Code | Что делать |
 | --- | --- | --- |
-| `401` | `authentication_required` | Token отсутствует, неверный или отозван. |
-| `403` | `api_access_disabled` | API-доступ клиента отключен. |
-| `403` | `token_inactive` | Ключ disabled, revoked или expired. |
-| `403` | `ip_not_allowed` | IP сервера интеграции не входит в allow-list. |
-| `403` | `scope_denied` | У ключа нет нужного scope. |
-| `401` | `signature_required` | Для запроса нужна HMAC-подпись. |
-| `401` | `invalid_signature` | Подпись не совпала. |
+| `401` | `authentication_required` | Добавить `Authorization: Bearer ...`. |
+| `401` | `invalid_token` | Проверить token или создать новый ключ. |
+| `401` | `signature_required` | Добавить HMAC headers. |
+| `401` | `invalid_signature` | Исправить расчет подписи. |
+| `403` | `api_access_disabled` | Попросить администратора включить API клиенту. |
+| `403` | `ip_not_allowed` | Добавить IP сервера в allow-list. |
+| `403` | `scope_denied` | Добавить нужный scope ключу. |
 
-## Best practices
+## Где хранить token
 
-- Создавайте отдельный token для каждого приложения.
-- Не отправляйте token из браузера напрямую.
-- Храните token только на серверной стороне.
-- Не пишите token в access logs.
-- Отзывайте старые ключи после ротации.
+Token должен храниться только на backend-стороне интеграции. Если у вас сайт или мобильное приложение, frontend должен обращаться к вашему backend, а уже backend вызывает iEXExchanger API.
 

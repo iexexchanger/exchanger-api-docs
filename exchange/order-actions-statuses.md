@@ -1,8 +1,8 @@
-# Order status and actions
+# Статусы и действия по заявке
 
-После создания заявки интеграция должна отслеживать статус и показывать пользователю доступные действия.
+После создания заявки интеграция должна показывать статус и доступные действия.
 
-## Get order
+## Получить заявку
 
 ```bash
 curl -sS https://example.com/api/v3/private/exchange/orders/TRK8K2LQ \
@@ -10,7 +10,7 @@ curl -sS https://example.com/api/v3/private/exchange/orders/TRK8K2LQ \
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
-`{order}` может быть:
+Вместо `{order}` можно передать:
 
 - numeric `id`;
 - `public_id`;
@@ -18,7 +18,7 @@ curl -sS https://example.com/api/v3/private/exchange/orders/TRK8K2LQ \
 
 API возвращает только заявки текущего клиента.
 
-## Get status
+## Получить статус
 
 ```bash
 curl -sS https://example.com/api/v3/private/exchange/orders/TRK8K2LQ/status \
@@ -26,7 +26,7 @@ curl -sS https://example.com/api/v3/private/exchange/orders/TRK8K2LQ/status \
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
-Typical response:
+Пример:
 
 ```json
 {
@@ -42,7 +42,7 @@ Typical response:
 }
 ```
 
-## Get available actions
+## Получить доступные действия
 
 ```bash
 curl -sS https://example.com/api/v3/private/exchange/orders/TRK8K2LQ/actions \
@@ -50,16 +50,14 @@ curl -sS https://example.com/api/v3/private/exchange/orders/TRK8K2LQ/actions \
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
-Actions can include:
-
-| Action | Meaning |
+| Действие | Что означает |
 | --- | --- |
 | `confirm_payment` | Пользователь может подтвердить оплату. |
 | `cancel` | Заявку можно отменить. |
 | `upload_file` | Нужно загрузить файл. |
 | `submit_verification` | Нужна верификация. |
 
-## Confirm payment
+## Подтвердить оплату
 
 ```bash
 curl -sS https://example.com/api/v3/private/exchange/orders/TRK8K2LQ/confirm \
@@ -74,15 +72,7 @@ curl -sS https://example.com/api/v3/private/exchange/orders/TRK8K2LQ/confirm \
   }'
 ```
 
-Optional fields:
-
-| Field | Description |
-| --- | --- |
-| `income_code` | Payment code, if direction requires it. |
-| `num_tx` | Transaction hash or payment reference. |
-| `note_tx` | Comment from integration. |
-
-## Cancel order
+## Отменить заявку
 
 ```bash
 curl -sS https://example.com/api/v3/private/exchange/orders/TRK8K2LQ/cancel \
@@ -95,19 +85,15 @@ curl -sS https://example.com/api/v3/private/exchange/orders/TRK8K2LQ/cancel \
   }'
 ```
 
-Cancellation is only available while the order is not final.
+Отмена доступна только пока заявка не финальная.
 
-## Webhooks vs polling
+## Webhooks или polling
 
-Use webhooks as the primary status channel:
+Основной способ узнавать изменения статуса: webhook `order.status_changed`.
 
-- `order.created`;
-- `order.status_changed`;
-- `order.payment_received`.
+Status endpoint используйте:
 
-Use status polling only when:
-
-- webhook endpoint is temporarily unavailable;
-- user is actively viewing the order page;
-- you need manual reconciliation.
+- когда пользователь прямо сейчас смотрит страницу заявки;
+- если webhook временно недоступен;
+- для ручной сверки.
 

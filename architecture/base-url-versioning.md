@@ -1,6 +1,6 @@
-# Base URL and versioning
+# Базовый URL и версия
 
-Все endpoints находятся под `/api/v3`. В большинстве установок API доступен на основном домене обменника.
+Все endpoints находятся под `/api/v3`.
 
 ```text
 https://{your-domain}/api/v3
@@ -12,26 +12,37 @@ https://{your-domain}/api/v3
 https://example.com/api/v3
 ```
 
-Если владелец обменника выдал отдельный backend-домен, используйте его. Не добавляйте `app.` автоматически.
+Используйте реальный домен обменника. Не добавляйте `app.` автоматически.
 
-## Public and private endpoints
+## Типы endpoints
 
-| Type | Prefix | Auth |
+| Тип | Prefix | Авторизация |
 | --- | --- | --- |
-| Public | `/api/v3/public/*` | Не требуется |
+| Public | `/api/v3/public/*` | Не нужна |
 | Private | `/api/v3/private/*` | Bearer token |
-| System ping | `/api/v3/ping` | Не требуется |
-| OpenAPI | `/api/v3/openapi.yaml` | Не требуется |
+| Ping | `/api/v3/ping` | Не нужна |
+| OpenAPI | `/api/v3/openapi.yaml` | Не нужна |
 
-## Version
+## Почему версия в URL
 
-Версия API закреплена в URL:
+Версия `v3` в URL нужна, чтобы интеграции не ломались при появлении новых версий API.
+
+Правильно:
 
 ```text
-/api/v3
+https://example.com/api/v3/private/exchange/routes
 ```
 
-Ответы также могут содержать version headers:
+Неправильно:
+
+```text
+https://example.com/private/exchange/routes
+https://example.com/api/private/exchange/routes
+```
+
+## Headers версии
+
+Ответ может содержать технические headers:
 
 ```http
 X-Api-Version: v3
@@ -40,19 +51,4 @@ X-Api-Error-Version: v1
 X-Api-Webhook-Payload-Version: v1
 ```
 
-Для стабильной интеграции:
-
-- не строите URL без `/api/v3`;
-- не полагайтесь на порядок полей JSON;
-- используйте `request_id` при обращении в support;
-- перед breaking changes проверяйте OpenAPI reference.
-
-## Environments
-
-Рекомендуется иметь отдельные ключи для каждого окружения:
-
-| Environment | Base URL | Key |
-| --- | --- | --- |
-| Demo | `https://{demo-domain}/api/v3` | Demo key |
-| Staging | `https://{staging-domain}/api/v3` | Staging key |
-| Production | `https://{production-domain}/api/v3` | Production key |
+Обычно их не нужно показывать пользователю. Они полезны для диагностики и support.

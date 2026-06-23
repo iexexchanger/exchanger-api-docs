@@ -1,14 +1,14 @@
-# Files and verifications
+# Файлы и верификации
 
-Некоторые направления требуют identity verification, card verification или дополнительные файлы. API использует upload intents: сначала создается намерение загрузки, затем файл отправляется и привязывается к проверке.
+Некоторые направления требуют документ, проверку карты или дополнительный файл. Для этого используется upload intent: сначала API создает намерение загрузки, затем интеграция отправляет файл.
 
-## Upload flow
+## Общий сценарий
 
 ```text
 create upload intent -> upload file -> commit -> submit verification
 ```
 
-## Create upload intent
+## Создать upload intent
 
 ```bash
 curl -sS https://example.com/api/v3/private/files/upload-intents \
@@ -23,16 +23,14 @@ curl -sS https://example.com/api/v3/private/files/upload-intents \
   }'
 ```
 
-Common purposes:
-
-| Purpose | Use |
+| Purpose | Для чего |
 | --- | --- |
-| `identity_verification` | Passport, ID, proof of identity. |
-| `card_verification` | Bank card proof. |
-| `order_attachment` | File attached to a specific order. |
-| `sandbox` | Test upload in sandbox flows. |
+| `identity_verification` | Документ для проверки личности. |
+| `card_verification` | Проверка банковской карты. |
+| `order_attachment` | Файл к заявке. |
+| `sandbox` | Тестовая загрузка. |
 
-## Commit upload
+## Загрузить файл
 
 ```bash
 FILE_SHA=$(sha256sum passport.jpg | awk '{print $1}')
@@ -44,9 +42,9 @@ curl -sS https://example.com/api/v3/private/files/upload-intents/UPLOAD_INTENT_I
   -F "file=@passport.jpg"
 ```
 
-If HMAC is enabled for upload, sign the request using `X-Api-File-Sha256` as the body hash.
+Если для upload включен HMAC, используйте `X-Api-File-Sha256` как body hash при подписи.
 
-## Get verification requirements
+## Получить требования к верификации
 
 ```bash
 curl -sS "https://example.com/api/v3/private/verifications/requirements?route_id=25" \
@@ -54,9 +52,7 @@ curl -sS "https://example.com/api/v3/private/verifications/requirements?route_id
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
-Requirements tell the integration what the user must pass before or during order creation.
-
-## Submit identity verification
+## Отправить identity verification
 
 ```bash
 curl -sS https://example.com/api/v3/private/verifications/identity \
@@ -71,7 +67,7 @@ curl -sS https://example.com/api/v3/private/verifications/identity \
   }'
 ```
 
-## Submit card verification
+## Отправить card verification
 
 ```bash
 curl -sS https://example.com/api/v3/private/verifications/cards \
@@ -85,20 +81,19 @@ curl -sS https://example.com/api/v3/private/verifications/cards \
   }'
 ```
 
-## Statuses
+## Статусы проверки
 
-| Status | Meaning |
+| Статус | Что означает |
 | --- | --- |
-| `not_submitted` | Пользователь еще не отправил данные. |
+| `not_submitted` | Данные еще не отправлены. |
 | `pending` | Проверка ожидает обработки. |
 | `approved` | Проверка пройдена. |
-| `rejected` | Проверка отклонена, нужно исправить данные. |
+| `rejected` | Проверка отклонена. |
 
-## Recommendations
+## Рекомендации
 
-- Показывайте пользователю requirements до создания заявки.
-- Не загружайте файлы без purpose.
-- Проверяйте размер и тип файла на своей стороне до upload.
+- Показывайте требования до создания заявки.
+- Проверяйте тип и размер файла на своей стороне.
+- Не храните документы дольше, чем нужно.
 - Используйте webhooks для изменения статуса проверки.
-- Не храните документы дольше, чем требует ваш продукт и закон.
 

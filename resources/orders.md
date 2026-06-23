@@ -1,8 +1,8 @@
-# Orders
+# Список заявок
 
-Orders API позволяет читать список заявок и детали заявок текущего клиента.
+Orders API нужен для чтения списка заявок, отчетов, CRM-синхронизации и support-панелей.
 
-## Get statuses
+## Получить статусы
 
 ```bash
 curl -sS https://example.com/api/v3/private/orders/statuses \
@@ -10,14 +10,14 @@ curl -sS https://example.com/api/v3/private/orders/statuses \
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
-Public status catalog:
+Публичный справочник:
 
 ```bash
 curl -sS https://example.com/api/v3/public/orders/statuses \
   -H "Accept: application/json"
 ```
 
-## List orders
+## Получить список заявок
 
 ```bash
 curl -sS "https://example.com/api/v3/private/orders?filter[status]=processing&sort=-created_at&page=1&per_page=50" \
@@ -25,9 +25,9 @@ curl -sS "https://example.com/api/v3/private/orders?filter[status]=processing&so
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
-Useful filters:
+## Полезные фильтры
 
-| Filter | Example |
+| Фильтр | Пример |
 | --- | --- |
 | `status` | `filter[status]=processing` |
 | `public_id` | `filter[public_id]=EX-000913` |
@@ -37,7 +37,7 @@ Useful filters:
 | `amount_min` | `filter[amount_min]=100` |
 | `amount_max` | `filter[amount_max]=1000` |
 
-## Get order
+## Получить одну заявку
 
 ```bash
 curl -sS https://example.com/api/v3/private/orders/TRK8K2LQ \
@@ -45,17 +45,7 @@ curl -sS https://example.com/api/v3/private/orders/TRK8K2LQ \
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
-`{order}` can be numeric ID, public ID or tracking ID.
+`{order}` может быть numeric ID, `public_id` или `tracking_id`.
 
-## Public exchange order endpoints
-
-For active exchange flow use:
-
-- `GET /private/exchange/orders/{order}`;
-- `GET /private/exchange/orders/{order}/status`;
-- `GET /private/exchange/orders/{order}/actions`;
-- `POST /private/exchange/orders/{order}/confirm`;
-- `POST /private/exchange/orders/{order}/cancel`.
-
-The generic Orders API is better for lists, reports and CRM sync.
+Для активного exchange flow чаще используйте endpoints из раздела [Статусы и действия по заявке](../exchange/order-actions-statuses.md).
 

@@ -1,83 +1,83 @@
-# Scopes
+# Scopes и права ключа
 
-Scopes limit what an API key can do. Give each key the smallest set needed for its integration.
+Scopes ограничивают, что API-ключ может делать. Выдавайте ключу только те права, которые нужны конкретной интеграции.
 
-## Client and platform
+## Клиент и платформа
 
-| Scope | Allows |
+| Scope | Что разрешает |
 | --- | --- |
-| `public-api:client:read` | Read client profile. |
-| `client:balance:read` | Read balance data when available. |
-| `client:health:read` | Check client API health. |
-| `usage:read` | Read usage and quota. |
-| `contracts:read` | Read API contracts. |
-| `schemas:read` | Read schema registry. |
-| `scopes:read` | Read available scopes. |
+| `public-api:client:read` | Читать профиль клиента. |
+| `client:balance:read` | Читать баланс клиента, если баланс доступен. |
+| `client:health:read` | Проверять состояние API-доступа клиента. |
+| `usage:read` | Читать usage, лимиты и квоты. |
+| `contracts:read` | Читать контракты API. |
+| `schemas:read` | Читать схемы API. |
+| `scopes:read` | Читать список доступных scopes. |
 
-## Orders
+## Заявки
 
-| Scope | Allows |
+| Scope | Что разрешает |
 | --- | --- |
-| `orders:read` | List orders. |
-| `orders:detail:read` | Read one order. |
-| `orders:statuses:read` | Read order status catalog. |
+| `orders:read` | Читать список заявок. |
+| `orders:detail:read` | Читать одну заявку. |
+| `orders:statuses:read` | Читать справочник статусов заявок. |
 
-## Exchange
+## Обмен
 
-| Scope | Allows |
+| Scope | Что разрешает |
 | --- | --- |
-| `exchange:routes:read` | Read payment systems, routes and route details. |
-| `exchange:capabilities:read` | Read route capabilities. |
-| `exchange:quotes:read` | Create exchange quotes. |
-| `exchange:preflight:read` | Run order preflight. |
-| `exchange:orders:create` | Create orders. |
-| `exchange:orders:confirm` | Confirm order payment. |
-| `exchange:orders:cancel` | Cancel orders. |
-| `exchange:orders:actions:read` | Read available order actions. |
+| `exchange:routes:read` | Читать платежные системы, направления и детали направления. |
+| `exchange:capabilities:read` | Читать возможности направления. |
+| `exchange:quotes:read` | Рассчитывать quote. |
+| `exchange:preflight:read` | Проверять заявку через preflight. |
+| `exchange:orders:create` | Создавать заявки. |
+| `exchange:orders:confirm` | Подтверждать оплату заявки. |
+| `exchange:orders:cancel` | Отменять заявки. |
+| `exchange:orders:actions:read` | Читать доступные действия по заявке. |
 
-## Files and verifications
+## Файлы и проверки
 
-| Scope | Allows |
+| Scope | Что разрешает |
 | --- | --- |
-| `files:read` | Read upload intent state. |
-| `files:write` | Create and commit upload intents. |
-| `verifications:read` | Read verification requirements and statuses. |
-| `verifications:write` | Submit identity/card verifications. |
+| `files:read` | Читать состояние upload intent. |
+| `files:write` | Создавать upload intent и загружать файл. |
+| `verifications:read` | Читать требования и статусы проверок. |
+| `verifications:write` | Отправлять identity/card verification. |
 
 ## Webhooks
 
-| Scope | Allows |
+| Scope | Что разрешает |
 | --- | --- |
-| `webhooks:read` | List and read webhook endpoints. |
-| `webhooks:write` | Create, update, delete and rotate webhook endpoints. |
-| `webhooks:deliveries:read` | Read webhook events and deliveries. |
-| `webhooks:deliveries:retry` | Retry webhook delivery. |
+| `webhooks:read` | Читать webhook endpoints. |
+| `webhooks:write` | Создавать, изменять, удалять webhook endpoints и менять secret. |
+| `webhooks:deliveries:read` | Читать события и доставки webhook. |
+| `webhooks:deliveries:retry` | Повторно отправлять webhook delivery. |
 
-## Partner and reviews
+## Партнерка и отзывы
 
-| Scope | Allows |
+| Scope | Что разрешает |
 | --- | --- |
-| `partner:read` | Read partner summary. |
-| `partner:referrals:read` | Read referrals. |
-| `partner:exchanges:read` | Read partner exchanges. |
-| `partner:payouts:read` | Read payouts. |
-| `partner:statistics:read` | Read partner statistics. |
-| `reviews:read` | Read reviews. |
-| `reviews:write` | Create review. |
+| `partner:read` | Читать партнерскую сводку. |
+| `partner:referrals:read` | Читать рефералов. |
+| `partner:exchanges:read` | Читать партнерские обмены. |
+| `partner:payouts:read` | Читать партнерские выплаты. |
+| `partner:statistics:read` | Читать партнерскую статистику. |
+| `reviews:read` | Читать отзывы. |
+| `reviews:write` | Создавать отзыв. |
 
 ## Sandbox
 
-| Scope | Allows |
+| Scope | Что разрешает |
 | --- | --- |
-| `sandbox:run` | Run sandbox simulations. |
+| `sandbox:run` | Запускать sandbox-симуляцию заявки. |
 
-## Suggested scope sets
+## Готовые наборы прав
 
-| Integration | Scopes |
+| Интеграция | Scopes |
 | --- | --- |
-| Read-only CRM | `orders:read`, `orders:detail:read`, `orders:statuses:read`, `client:health:read` |
-| Exchange checkout | `exchange:routes:read`, `exchange:capabilities:read`, `exchange:quotes:read`, `exchange:preflight:read`, `exchange:orders:create`, `orders:detail:read` |
-| Checkout with payment confirmation | Exchange checkout scopes plus `exchange:orders:confirm`, `exchange:orders:actions:read` |
-| Webhook management | `webhooks:read`, `webhooks:write`, `webhooks:deliveries:read` |
-| Partner dashboard | `partner:read`, `partner:statistics:read`, `partner:referrals:read`, `partner:exchanges:read`, `partner:payouts:read` |
+| CRM только для чтения | `orders:read`, `orders:detail:read`, `orders:statuses:read`, `client:health:read` |
+| Форма обмена | `exchange:routes:read`, `exchange:capabilities:read`, `exchange:quotes:read`, `exchange:preflight:read`, `exchange:orders:create`, `orders:detail:read` |
+| Форма обмена с подтверждением оплаты | Scopes формы обмена плюс `exchange:orders:confirm`, `exchange:orders:actions:read` |
+| Управление webhooks | `webhooks:read`, `webhooks:write`, `webhooks:deliveries:read` |
+| Партнерский кабинет | `partner:read`, `partner:statistics:read`, `partner:referrals:read`, `partner:exchanges:read`, `partner:payouts:read` |
 

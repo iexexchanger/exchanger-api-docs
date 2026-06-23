@@ -1,8 +1,10 @@
-# Payment systems and routes
+# Платежные системы и направления
 
-Payment systems описывают доступные валюты и способы оплаты. Routes описывают конкретные направления обмена между двумя сторонами.
+Платежные системы отвечают за то, что пользователь может отдать и получить. Направления отвечают за конкретную пару обмена.
 
-## Get payment systems
+## Получить платежные системы
+
+Сторона отдачи:
 
 ```bash
 curl -sS "https://example.com/api/v3/private/exchange/payment-systems?filter[side]=give" \
@@ -10,36 +12,37 @@ curl -sS "https://example.com/api/v3/private/exchange/payment-systems?filter[sid
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
-Useful filters:
+Сторона получения:
 
-| Filter | Example | Meaning |
-| --- | --- | --- |
-| `side` | `filter[side]=give` | Валюты для стороны отдачи. |
-| `side` | `filter[side]=receive` | Валюты для стороны получения. |
-| `currency_code` | `filter[currency_code]=USDT` | Код валюты. |
-| `network` | `filter[network]=TRC20` | Сеть или стандарт, если используется. |
-| `payment` | `filter[payment]=Tether` | Название платежной системы. |
+```bash
+curl -sS "https://example.com/api/v3/private/exchange/payment-systems?filter[side]=receive" \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
 
-Response shape зависит от настроек обменника, но обычно содержит:
+Пример элемента:
 
 ```json
 {
-  "state": 0,
-  "result": {
-    "data": [
-      {
-        "id": 1,
-        "currency_code": "USDT",
-        "network": "TRC20",
-        "payment": "Tether",
-        "side": "give"
-      }
-    ]
-  }
+  "id": 1,
+  "currency_code": "USDT",
+  "network": "TRC20",
+  "payment": "Tether",
+  "side": "give"
 }
 ```
 
-## Get routes
+## Полезные фильтры
+
+| Фильтр | Пример | Для чего |
+| --- | --- | --- |
+| `side` | `filter[side]=give` | Показать сторону отдачи. |
+| `side` | `filter[side]=receive` | Показать сторону получения. |
+| `currency_code` | `filter[currency_code]=USDT` | Найти валюту по коду. |
+| `network` | `filter[network]=TRC20` | Отфильтровать сеть. |
+| `payment` | `filter[payment]=Tether` | Найти платежную систему по названию. |
+
+## Получить направления
 
 ```bash
 curl -sS "https://example.com/api/v3/private/exchange/routes?filter[from_currency_id]=1&filter[to_currency_id]=2" \
@@ -47,17 +50,7 @@ curl -sS "https://example.com/api/v3/private/exchange/routes?filter[from_currenc
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
-Useful filters:
-
-| Filter | Example |
-| --- | --- |
-| `from_currency_id` | `filter[from_currency_id]=1` |
-| `to_currency_id` | `filter[to_currency_id]=2` |
-| `from_code` | `filter[from_code]=USDT` |
-| `to_code` | `filter[to_code]=BTC` |
-| `status` | `filter[status]=active` |
-
-Typical route fields:
+Пример направления:
 
 ```json
 {
@@ -77,15 +70,13 @@ Typical route fields:
 }
 ```
 
-## UI recommendations
+## Как строить форму обмена
 
-- Сначала покажите пользователю сторону отдачи.
-- После выбора отдачи загрузите доступные варианты получения.
-- После выбора пары загрузите routes.
-- Не показывайте направления, которые API не возвращает как активные.
-- Если несколько routes подходят под одну пару, показывайте сеть, лимиты, reserve и rate mode.
+1. Показать пользователю список валют отдачи.
+2. После выбора отдачи загрузить доступные валюты получения.
+3. После выбора пары найти направления.
+4. Если направлений несколько, показать сеть, лимиты, курс и резерв.
+5. Для выбранного направления вызвать `capabilities`.
 
-## Caching
-
-Payment systems и routes можно кэшировать на короткое время, например 30-120 секунд. Не кэшируйте их на часы: резервы, лимиты, статусы и доступность направлений могут меняться.
+Не показывайте пользователю направление, если API не возвращает его как доступное.
 

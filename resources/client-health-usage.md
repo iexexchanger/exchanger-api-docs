@@ -1,8 +1,8 @@
-# Client, health and usage
+# Клиент, health и usage
 
-Эти endpoints помогают проверить доступ, профиль клиента и расход API.
+Эти endpoints помогают проверить доступ клиента, состояние ключа и расход API.
 
-## Private ping
+## Приватный ping
 
 ```bash
 curl -sS https://example.com/api/v3/private/ping \
@@ -10,7 +10,7 @@ curl -sS https://example.com/api/v3/private/ping \
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
-## Client health
+## Проверить состояние клиента
 
 ```bash
 curl -sS https://example.com/api/v3/private/health/client \
@@ -18,9 +18,7 @@ curl -sS https://example.com/api/v3/private/health/client \
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
-Use this endpoint after key creation, rotation or deployment.
-
-Typical response:
+Пример:
 
 ```json
 {
@@ -42,7 +40,7 @@ Typical response:
 }
 ```
 
-## Client profile
+## Профиль клиента
 
 ```bash
 curl -sS https://example.com/api/v3/private/client \
@@ -64,12 +62,4 @@ curl -sS "https://example.com/api/v3/private/usage?period=day" \
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
-Use usage data to show:
-
-- total requests;
-- errors;
-- billable units;
-- daily quota;
-- monthly quota;
-- current token status.
-
+Используйте usage, чтобы показывать клиенту расход API, ошибки и остаток дневной/месячной quota.

@@ -1,40 +1,38 @@
-# Webhook events
+# События webhooks
 
-Subscribe only to events your integration actually processes.
+Подписывайтесь только на те события, которые ваша интеграция действительно обрабатывает.
 
-| Event | Meaning |
+| Событие | Что означает |
 | --- | --- |
-| `api.test` | Test event for endpoint verification. |
-| `order.created` | Order created. |
-| `order.preflight` | Order preflight completed. |
-| `order.status_changed` | Order status changed. |
-| `order.payment_received` | Payment was marked received. |
-| `verification.identity.created` | Identity verification submitted. |
-| `verification.identity.status_changed` | Identity verification status changed. |
-| `verification.card.created` | Card verification submitted. |
-| `verification.card.status_changed` | Card verification status changed. |
-| `file.uploaded` | File upload completed. |
-| `api.sandbox.simulated` | Sandbox simulation completed. |
-| `review.created` | Review created. |
-| `partner.payout.paid` | Partner payout paid. |
+| `api.test` | Тестовое событие для проверки endpoint. |
+| `order.created` | Создана заявка. |
+| `order.preflight` | Выполнен preflight заявки. |
+| `order.status_changed` | Изменился статус заявки. |
+| `order.payment_received` | Оплата отмечена как полученная. |
+| `verification.identity.created` | Отправлена identity verification. |
+| `verification.identity.status_changed` | Изменился статус identity verification. |
+| `verification.card.created` | Отправлена card verification. |
+| `verification.card.status_changed` | Изменился статус card verification. |
+| `file.uploaded` | Файл загружен. |
+| `api.sandbox.simulated` | Выполнена sandbox-симуляция. |
+| `review.created` | Создан отзыв. |
+| `partner.payout.paid` | Партнерская выплата отмечена оплаченной. |
 
-## Wildcard
+## Подписка на все события
 
-Some installations may allow subscribing to all events with:
+В некоторых установках может быть доступна подписка:
 
 ```text
 *
 ```
 
-Use wildcard only for logging, audit or development. In production, explicit event lists are easier to reason about.
+Используйте ее только для разработки, аудита или логирования. В production лучше явно выбрать нужные события.
 
-## Event payload
-
-Typical event delivery body:
+## Пример payload
 
 ```json
 {
-  "id": "evt_...",
+  "id": "evt_01J...",
   "type": "order.status_changed",
   "created_at": "2026-06-23T10:00:00+00:00",
   "data": {
@@ -46,5 +44,5 @@ Typical event delivery body:
 }
 ```
 
-Always use the event `type` and object IDs inside `data`. Do not assume every event has the same payload fields.
+Обрабатывайте событие по `type` и идентификаторам внутри `data`. Не предполагайте, что все события имеют одинаковые поля.
 

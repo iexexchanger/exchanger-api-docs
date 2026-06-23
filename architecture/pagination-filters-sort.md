@@ -1,18 +1,12 @@
-# Pagination, filters and sorting
+# Пагинация, фильтры и сортировка
 
-Списковые endpoints поддерживают единый стиль query parameters.
+Списковые endpoints поддерживают общие query parameters.
 
-## Pagination
+## Пагинация
 
 ```text
 ?page=1&per_page=50
 ```
-
-| Parameter | Description |
-| --- | --- |
-| `page` | Номер страницы. |
-| `per_page` | Размер страницы. Обычно максимум `100`. |
-| `cursor` | Cursor для endpoints, где включена cursor pagination. |
 
 Пример:
 
@@ -22,44 +16,41 @@ curl -sS "https://example.com/api/v3/private/orders?page=1&per_page=50" \
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
-## Filters
+## Фильтры
 
-Filters передаются как `filter[name]=value`.
+Фильтры передаются в формате:
 
 ```text
-?filter[status]=created&filter[created_from]=2026-06-01&filter[created_to]=2026-06-23
+filter[name]=value
 ```
 
-Суффиксы:
+Пример:
 
-| Suffix | Meaning |
+```bash
+curl -sS "https://example.com/api/v3/private/orders?filter[status]=processing&filter[created_from]=2026-06-01&filter[created_to]=2026-06-23" \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+## Суффиксы
+
+| Суффикс | Значение |
 | --- | --- |
-| `_from` | Больше или равно. |
-| `_to` | Меньше или равно. |
-| `_min` | Больше или равно для чисел. |
-| `_max` | Меньше или равно для чисел. |
+| `_from` | От даты или значения. |
+| `_to` | До даты или значения. |
+| `_min` | Минимальное число. |
+| `_max` | Максимальное число. |
 
-Список значений можно передавать повторяющимися параметрами или форматом, который поддерживает ваш HTTP-клиент.
-
-## Sorting
+## Сортировка
 
 ```text
 ?sort=created_at
 ?sort=-created_at
 ```
 
-| Format | Meaning |
-| --- | --- |
-| `created_at` | По возрастанию. |
-| `-created_at` | По убыванию. |
+Минус означает обратный порядок.
 
-## Example
+## Где смотреть доступные фильтры
 
-```bash
-curl -sS "https://example.com/api/v3/private/orders?filter[status]=processing&filter[created_from]=2026-06-01&sort=-created_at&page=1&per_page=50" \
-  -H "Accept: application/json" \
-  -H "Authorization: Bearer YOUR_API_KEY"
-```
-
-Полный список фильтров: [Filters](../reference/filters.md).
+Полный список фильтров по ресурсам: [Фильтры списков](../reference/filters.md).
 

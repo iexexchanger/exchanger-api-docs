@@ -1,58 +1,52 @@
-# Idempotency
+# Защита от дублей через Idempotency-Key
 
-Idempotency защищает write-запросы от дублей при повторе из-за timeout, сетевой ошибки или retry.
+`Idempotency-Key` нужен, чтобы повтор одного и того же write-запроса не создал дубль.
 
-Передавайте header:
+Главный пример: создание заявки. Если клиент отправил запрос, но соединение оборвалось, он может повторить запрос с тем же ключом. API вернет тот же результат, а не создаст вторую заявку.
+
+## Header запроса
 
 ```http
-Idempotency-Key: order-25-100-20260623-001
+Idempotency-Key: create-order-user-42-001
 ```
 
-## Когда использовать
+## Где использовать
 
 Используйте `Idempotency-Key` для:
 
 - `POST /private/exchange/orders`;
 - `POST /private/exchange/orders/{order}/confirm`;
 - `POST /private/exchange/orders/{order}/cancel`;
-- upload commit;
-- создание webhook endpoint;
-- другие `POST`, `PUT`, `PATCH`, `DELETE`, где повтор может изменить состояние.
+- `POST /private/files/upload-intents/{intent}/commit`;
+- `POST /private/webhooks`;
+- любых write-запросов, где повтор опасен.
 
-## Key format
+## Как выбирать ключ
 
-Рекомендуемый формат:
-
-```text
-{operation}-{business-id}-{timestamp-or-sequence}
-```
-
-Примеры:
+Хороший ключ:
 
 ```text
-create-order-cart-92831-001
-confirm-order-TRK123456-001
-webhook-create-production-001
+create-order-user-42-001
+confirm-order-TRK8K2LQ-001
+webhook-production-create-001
 ```
 
-Ключ должен быть уникальным для одной бизнес-операции. Если вы повторяете тот же запрос после timeout, используйте тот же ключ.
+Плохой ключ:
 
-## Replay behavior
+```text
+123
+test
+random
+```
 
-Если первый запрос завершился успешно, повтор с тем же ключом вернет сохраненный ответ и header:
+Ключ должен быть уникален для одной бизнес-операции. Для повтора той же операции используйте тот же ключ.
+
+## Что будет при повторе
+
+Если тот же запрос повторился с тем же ключом, API вернет сохраненный ответ и может добавить header:
 
 ```http
 Idempotency-Replayed: true
 ```
 
-Если тот же ключ использован с другим body или другим path, API вернет конфликт.
-
-## Client behavior
-
-| Ситуация | Что делать |
-| --- | --- |
-| Network timeout | Повторить тот же request с тем же `Idempotency-Key`. |
-| `5xx` | Повторить с backoff и тем же ключом. |
-| `409 idempotency_conflict` | Не повторять. Создать новый ключ только если это новая операция. |
-| `429` | Ждать `Retry-After`, затем повторить с тем же ключом. |
-
+Если тот же ключ отправлен с другим body или другим endpoint, API вернет конфликт.

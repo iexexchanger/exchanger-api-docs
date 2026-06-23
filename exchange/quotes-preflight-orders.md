@@ -1,14 +1,12 @@
-# Quote, preflight and order creation
+# Расчет, preflight и создание заявки
 
-Создание заявки должно проходить через три шага:
+Заявку нужно создавать в три шага:
 
 ```text
 quote -> preflight -> create order
 ```
 
-Так интеграция сначала показывает пользователю расчет, затем проверяет обязательные поля, и только потом создает заявку.
-
-## Quote
+## 1. Рассчитать quote
 
 ```bash
 curl -sS https://example.com/api/v3/private/exchange/quotes \
@@ -22,25 +20,27 @@ curl -sS https://example.com/api/v3/private/exchange/quotes \
   }'
 ```
 
-Typical response:
+Пример ответа:
 
 ```json
 {
   "state": 0,
+  "message": "OK",
   "result": {
-    "route_id": 25,
-    "amount": "100",
-    "receive_amount": "0.00102",
-    "rate": "0.00001020",
-    "type_rate": "fixed",
-    "expires_at": "2026-06-23T10:05:00+00:00"
+    "quote": {
+      "route_id": 25,
+      "amount": "100",
+      "receive_amount": "0.00102",
+      "rate": "0.00001020",
+      "type_rate": "fixed"
+    }
   }
 }
 ```
 
-Use quote to show estimated receive amount. Do not treat quote as created order.
+Quote нужен, чтобы показать расчет пользователю. Quote не создает заявку.
 
-## Preflight
+## 2. Проверить preflight
 
 ```bash
 curl -sS https://example.com/api/v3/private/exchange/orders/preflight \
@@ -56,11 +56,12 @@ curl -sS https://example.com/api/v3/private/exchange/orders/preflight \
   }'
 ```
 
-If data is incomplete:
+Если данных не хватает:
 
 ```json
 {
   "state": 0,
+  "message": "OK",
   "result": {
     "can_create_order": false,
     "missing_fields": [
@@ -73,23 +74,19 @@ If data is incomplete:
 }
 ```
 
-If data is valid:
+Если можно создавать заявку:
 
 ```json
 {
   "state": 0,
+  "message": "OK",
   "result": {
-    "can_create_order": true,
-    "quote": {
-      "amount": "100",
-      "receive_amount": "0.00102",
-      "rate": "0.00001020"
-    }
+    "can_create_order": true
   }
 }
 ```
 
-## Create order
+## 3. Создать заявку
 
 ```bash
 curl -sS https://example.com/api/v3/private/exchange/orders \
@@ -106,11 +103,12 @@ curl -sS https://example.com/api/v3/private/exchange/orders \
   }'
 ```
 
-Typical response:
+Пример ответа:
 
 ```json
 {
   "state": 0,
+  "message": "OK",
   "result": {
     "order": {
       "id": 913,
@@ -124,36 +122,24 @@ Typical response:
 }
 ```
 
-Save at least:
+## Основные поля заявки
 
-- `id`;
-- `public_id`;
-- `tracking_id`;
-- `status`;
-- amount and receive amount shown to the user.
-
-## Payload fields
-
-Common fields:
-
-| Field | Required | Description |
+| Поле | Обязательно | Что означает |
 | --- | --- | --- |
-| `route_id` | Usually yes | Direction ID. |
-| `amount` | Yes | Amount user gives. |
-| `income_account` | Depends on route | Requisite on give side. |
-| `outcome_account` | Depends on route | Requisite on receive side. |
-| `type_rate` | No | `fixed` or `floating`. |
-| `promo_code` | No | Promo code if supported. |
-| `city_id` | Depends on route | City for cash directions. |
-| `direction_fields` | Depends on route | Dynamic route fields. |
-| `user_fields` | Depends on route | Dynamic user fields. |
-| `snapshot` | Recommended when provided | Route snapshot from details/capabilities. |
+| `route_id` | Обычно да | ID направления. |
+| `amount` | Да | Сумма, которую пользователь отдает. |
+| `income_account` | Зависит от направления | Реквизит стороны отдачи. |
+| `outcome_account` | Зависит от направления | Реквизит стороны получения. |
+| `type_rate` | Нет | `fixed` или `floating`. |
+| `promo_code` | Нет | Промокод. |
+| `city_id` | Зависит от направления | Город для наличных направлений. |
+| `direction_fields` | Зависит от направления | Дополнительные поля направления. |
+| `user_fields` | Зависит от направления | Дополнительные поля пользователя. |
+| `snapshot` | Желательно, если API его вернул | Снимок условий направления. |
 
-## Aliases
+## Совместимые alias-поля
 
-API accepts several aliases for compatibility:
-
-| Preferred | Common alias |
+| Рекомендуемое поле | Alias |
 | --- | --- |
 | `route_id` | `direction_id` |
 | `amount` | `income_amount` |
@@ -162,5 +148,5 @@ API accepts several aliases for compatibility:
 | `from_currency_id` | `income_payment_system` |
 | `to_currency_id` | `outcome_payment_system` |
 
-Prefer the modern field names in new integrations.
+В новых интеграциях используйте рекомендуемые поля.
 

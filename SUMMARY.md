@@ -1,60 +1,66 @@
-# Summary
+# Содержание
 
-## Get Started
+## Начало работы
 
-* [Welcome](README.md)
-* [Import to GitBook](start/gitbook-import.md)
-* [Quickstart](start/quick-start.md)
-* [Integration checklist](start/integration-checklist.md)
+* [Что такое iEXExchanger API](README.md)
+* [Быстрый старт: первая заявка](start/quick-start.md)
+* [Кто что делает: администратор, клиент, разработчик](start/roles-and-responsibilities.md)
+* [Чеклист перед запуском](start/integration-checklist.md)
 
-## Setup
+## Получение доступа и ключей
 
-* [Enable API access](setup/enable-api-access.md)
-* [API keys](setup/api-keys.md)
-* [Production settings](setup/production-settings.md)
+* [Как администратору включить API](setup/admin-enable-api.md)
+* [Как клиенту получить API-ключ](setup/client-get-api-key.md)
+* [API-ключи, HMAC secret и ротация](setup/api-keys.md)
+* [Безопасные production-настройки](setup/production-settings.md)
 
-## API Architecture
+## Как устроен API
 
-* [Base URL and versioning](architecture/base-url-versioning.md)
-* [Requests, envelopes and headers](architecture/envelopes-and-headers.md)
-* [Authentication](architecture/authentication.md)
-* [HMAC request signing](architecture/hmac-signature.md)
-* [Idempotency](architecture/idempotency.md)
-* [Rate limits and quotas](architecture/rate-limits-quotas.md)
-* [Pagination, filters and sorting](architecture/pagination-filters-sort.md)
-* [Errors](architecture/errors.md)
+* [Базовый URL и версия](architecture/base-url-versioning.md)
+* [Формат запросов, ответов и headers](architecture/envelopes-and-headers.md)
+* [Авторизация Bearer token](architecture/authentication.md)
+* [HMAC-подпись запросов](architecture/hmac-signature.md)
+* [Защита от дублей через Idempotency-Key](architecture/idempotency.md)
+* [Лимиты, квоты и Retry-After](architecture/rate-limits-quotas.md)
+* [Пагинация, фильтры и сортировка](architecture/pagination-filters-sort.md)
+* [Ошибки и как их обрабатывать](architecture/errors.md)
 
-## Exchange
+## Обмен и заявки
 
-* [Exchange overview](exchange/overview.md)
-* [Payment systems and routes](exchange/payment-systems-and-routes.md)
-* [Route capabilities](exchange/route-capabilities.md)
-* [Quote, preflight and order creation](exchange/quotes-preflight-orders.md)
-* [Order status and actions](exchange/order-actions-statuses.md)
-* [Files and verifications](exchange/files-and-verifications.md)
-* [Sandbox](exchange/sandbox.md)
+* [Общий сценарий обмена](exchange/overview.md)
+* [Платежные системы и направления](exchange/payment-systems-and-routes.md)
+* [Возможности направления](exchange/route-capabilities.md)
+* [Расчет, preflight и создание заявки](exchange/quotes-preflight-orders.md)
+* [Статусы и действия по заявке](exchange/order-actions-statuses.md)
+* [Файлы и верификации](exchange/files-and-verifications.md)
+* [Sandbox-проверка](exchange/sandbox.md)
 
 ## Webhooks
 
-* [Webhook overview](webhooks/overview.md)
-* [Delivery signatures](webhooks/delivery-signatures.md)
-* [Delivery center and retry](webhooks/delivery-center.md)
+* [Как подключить webhooks](webhooks/overview.md)
+* [Как проверить подпись webhook](webhooks/delivery-signatures.md)
+* [История доставок и повторная отправка](webhooks/delivery-center.md)
 
-## API Resources
+## Дополнительные возможности
 
-* [Client, health and usage](resources/client-health-usage.md)
-* [Orders](resources/orders.md)
-* [Partner](resources/partner.md)
-* [Reviews](resources/reviews.md)
-* [Public XML rates](resources/public-rates-xml.md)
+* [Клиент, health и usage](resources/client-health-usage.md)
+* [Список заявок](resources/orders.md)
+* [Партнерский API](resources/partner.md)
+* [Отзывы](resources/reviews.md)
+* [Публичный XML-файл курсов](resources/public-rates-xml.md)
 
-## Reference
+## Готовые примеры
 
-* [Endpoint matrix](reference/endpoints.md)
-* [Scopes](reference/scopes.md)
-* [Filters](reference/filters.md)
-* [Webhook events](reference/webhook-events.md)
-* [Interactive API reference](reference/openapi-reference.md)
-* [Code samples](reference/code-samples.md)
-* [Troubleshooting](troubleshooting/common-issues.md)
+* [cURL: полный путь до заявки](examples/curl-create-order.md)
+* [PHP: подпись HMAC и запрос](examples/php-signed-request.md)
+* [TypeScript: SDK-клиент](examples/typescript-client.md)
+* [Webhook receiver](examples/webhook-receiver.md)
 
+## Справочник
+
+* [Все endpoints](reference/endpoints.md)
+* [Scopes и права ключа](reference/scopes.md)
+* [Фильтры списков](reference/filters.md)
+* [События webhooks](reference/webhook-events.md)
+* [OpenAPI и SDK](reference/openapi-reference.md)
+* [Решение частых проблем](troubleshooting/common-issues.md)

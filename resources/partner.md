@@ -1,8 +1,8 @@
-# Partner
+# Партнерский API
 
-Partner endpoints are read-only and return partner account data for the authenticated client.
+Партнерские endpoints работают только на чтение и возвращают партнерские данные текущего клиента.
 
-## Partner summary
+## Сводка
 
 ```bash
 curl -sS https://example.com/api/v3/private/partner \
@@ -10,7 +10,7 @@ curl -sS https://example.com/api/v3/private/partner \
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
-## Statistics
+## Статистика
 
 ```bash
 curl -sS "https://example.com/api/v3/private/partner/statistics?period=month" \
@@ -18,7 +18,7 @@ curl -sS "https://example.com/api/v3/private/partner/statistics?period=month" \
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
-## Referrals
+## Рефералы
 
 ```bash
 curl -sS "https://example.com/api/v3/private/partner/referrals?page=1&per_page=50" \
@@ -26,7 +26,7 @@ curl -sS "https://example.com/api/v3/private/partner/referrals?page=1&per_page=5
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
-## Exchanges
+## Партнерские обмены
 
 ```bash
 curl -sS "https://example.com/api/v3/private/partner/exchanges?filter[created_from]=2026-06-01" \
@@ -34,7 +34,7 @@ curl -sS "https://example.com/api/v3/private/partner/exchanges?filter[created_fr
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
-## Payouts
+## Выплаты
 
 ```bash
 curl -sS "https://example.com/api/v3/private/partner/payouts?filter[status]=paid" \
@@ -42,9 +42,9 @@ curl -sS "https://example.com/api/v3/private/partner/payouts?filter[status]=paid
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
-## Legacy aliases
+## Совместимые alias endpoints
 
-Some integrations may use account-prefixed aliases:
+Для совместимости могут работать пути:
 
 ```text
 GET /private/account/partner
@@ -54,5 +54,4 @@ GET /private/account/partner/exchanges
 GET /private/account/partner/payouts
 ```
 
-For new integrations, prefer `/private/partner/*`.
-
+В новых интеграциях используйте `/private/partner/*`.

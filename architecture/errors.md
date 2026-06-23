@@ -1,6 +1,8 @@
-# Errors
+# Ошибки и как их обрабатывать
 
-Ошибки возвращаются в JSON envelope с `state: 1`.
+API возвращает HTTP status и JSON body с `error.code`.
+
+Пример:
 
 ```json
 {
@@ -14,46 +16,44 @@
     }
   },
   "meta": {
-    "request_id": "req_...",
-    "correlation_id": "cor_...",
+    "request_id": "req_01J...",
     "timestamp": "2026-06-23T10:00:00+00:00"
   }
 }
 ```
 
-## Status codes
+## Что делать по HTTP status
 
-| HTTP | Meaning | Retry |
+| HTTP | Что значит | Повторять? |
 | --- | --- | --- |
-| `400` | Некорректный запрос или неподдерживаемое действие. | Нет |
-| `401` | Нет token или неверная HMAC-подпись. | Нет, пока не исправлен token/signature. |
-| `403` | Доступ запрещен: scope, IP, status token, API disabled. | Нет, пока не изменены права. |
-| `404` | Ресурс не найден или не принадлежит клиенту. | Нет |
-| `409` | Конфликт состояния или idempotency conflict. | Зависит от операции |
-| `422` | Ошибка валидации входных данных. | Нет, исправьте данные |
-| `429` | Rate limit или quota exceeded. | Да, после `Retry-After` |
-| `5xx` | Временная ошибка сервера. | Да, с backoff |
+| `400` | Неверный запрос. | Нет, исправить запрос. |
+| `401` | Нет авторизации или неверная подпись. | Нет, пока не исправлен token/HMAC. |
+| `403` | Доступ запрещен. | Нет, пока не изменены права/IP/scopes. |
+| `404` | Ресурс не найден. | Обычно нет. |
+| `409` | Конфликт состояния или idempotency. | Только после анализа. |
+| `422` | Ошибка данных. | Нет, показать пользователю поля. |
+| `429` | Слишком много запросов. | Да, после `Retry-After`. |
+| `5xx` | Ошибка сервера. | Да, с backoff. |
 
-## Common error codes
+## Частые error.code
 
-| Code | Meaning |
-| --- | --- |
-| `authentication_required` | Нужен Bearer token. |
-| `invalid_token` | Token неверный или отозван. |
-| `api_access_disabled` | API-доступ отключен. |
-| `ip_not_allowed` | IP не разрешен. |
-| `scope_denied` | Не хватает scope. |
-| `signature_required` | Запрос должен быть подписан HMAC. |
-| `invalid_signature` | HMAC-подпись неверна. |
-| `signature_replay` | Nonce уже использован. |
-| `validation_error` | Данные не прошли валидацию. |
-| `rate_limit_exceeded` | Слишком много запросов. |
-| `quota_exceeded` | Дневная или месячная quota исчерпана. |
-| `idempotency_conflict` | Тот же key использован для другого запроса. |
+| Code | Что означает | Что делать |
+| --- | --- | --- |
+| `authentication_required` | Не передан Bearer token. | Добавить `Authorization`. |
+| `invalid_token` | Token неверный или отключен. | Создать или проверить ключ. |
+| `signature_required` | Нужна HMAC-подпись. | Добавить HMAC headers. |
+| `invalid_signature` | Подпись не совпала. | Проверить canonical string. |
+| `signature_replay` | Nonce уже использован. | Сгенерировать новый nonce. |
+| `scope_denied` | Не хватает scope. | Добавить scope ключу. |
+| `ip_not_allowed` | IP не в allow-list. | Добавить IP сервера. |
+| `validation_error` | Неверные данные. | Исправить поля из `details`. |
+| `idempotency_conflict` | Ключ использован для другого запроса. | Не повторять с этим key. |
+| `rate_limit_exceeded` | Частотный лимит исчерпан. | Ждать `Retry-After`. |
+| `quota_exceeded` | Дневная или месячная quota исчерпана. | Повысить quota или снизить нагрузку. |
 
-## Support workflow
+## Что передавать в support
 
-При обращении в support передайте:
+Передайте:
 
 - `X-Request-Id`;
 - endpoint;
@@ -61,5 +61,5 @@
 - время запроса;
 - HTTP status;
 - `error.code`;
-- последние 6-8 символов token name или название ключа, без секрета.
+- название API-ключа, но не сам token.
 

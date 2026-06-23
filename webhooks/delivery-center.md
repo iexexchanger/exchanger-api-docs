@@ -1,8 +1,8 @@
-# Delivery center and retry
+# История доставок и повторная отправка
 
-Delivery center helps inspect webhook events and deliveries.
+Центр доставок нужен, чтобы смотреть, какие webhook-события были созданы, куда они отправлялись и почему доставка могла не пройти.
 
-## List events
+## Получить события
 
 ```bash
 curl -sS "https://example.com/api/v3/private/webhooks/events?filter[type]=order.status_changed" \
@@ -10,7 +10,7 @@ curl -sS "https://example.com/api/v3/private/webhooks/events?filter[type]=order.
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
-## Get event
+## Получить одно событие
 
 ```bash
 curl -sS https://example.com/api/v3/private/webhooks/events/EVENT_ID \
@@ -18,7 +18,7 @@ curl -sS https://example.com/api/v3/private/webhooks/events/EVENT_ID \
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
-## List deliveries
+## Получить доставки
 
 ```bash
 curl -sS "https://example.com/api/v3/private/webhooks/deliveries?filter[status]=failed" \
@@ -26,15 +26,7 @@ curl -sS "https://example.com/api/v3/private/webhooks/deliveries?filter[status]=
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
-## Get delivery
-
-```bash
-curl -sS https://example.com/api/v3/private/webhooks/deliveries/DELIVERY_ID \
-  -H "Accept: application/json" \
-  -H "Authorization: Bearer YOUR_API_KEY"
-```
-
-## Retry delivery
+## Повторить доставку
 
 ```bash
 curl -sS https://example.com/api/v3/private/webhooks/deliveries/DELIVERY_ID/retry \
@@ -43,33 +35,21 @@ curl -sS https://example.com/api/v3/private/webhooks/deliveries/DELIVERY_ID/retr
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
-## Delivery statuses
+## Статусы доставки
 
-| Status | Meaning |
+| Статус | Что означает |
 | --- | --- |
-| `pending` | Delivery создана, но еще не отправлена. |
+| `pending` | Доставка создана, но еще не отправлена. |
 | `delivered` | Receiver вернул `2xx`. |
 | `failed` | Receiver не ответил успешно. |
-| `retrying` | Delivery ожидает следующий retry. |
+| `retrying` | Доставка ожидает следующую попытку. |
 
-## Retry behavior
+## Что проверять при failed
 
-Webhook delivery может повторяться автоматически. Receiver должен быть idempotent:
-
-- храните `event_id`;
-- не создавайте дубль операции при повторе;
-- возвращайте `2xx` для уже обработанного события;
-- не полагайтесь на порядок доставки разных событий.
-
-## Troubleshooting failed delivery
-
-Проверьте:
-
-1. endpoint доступен по HTTPS;
-2. TLS certificate действителен;
-3. receiver отвечает быстрее timeout;
-4. receiver возвращает `2xx`;
-5. raw body сохраняется до signature verification;
-6. webhook secret актуален после rotation;
-7. firewall пропускает входящие запросы.
-
+1. URL доступен из интернета.
+2. HTTPS-сертификат действителен.
+3. Receiver отвечает достаточно быстро.
+4. Receiver возвращает `2xx`.
+5. Подпись проверяется по raw body.
+6. Webhook secret актуален после rotation.
+7. Firewall пропускает входящие запросы.
