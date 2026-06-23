@@ -1,0 +1,3497 @@
+openapi: 3.1.0
+info:
+  title: iEX Exchanger Public API
+  version: 3.0.0
+  description: >
+    Public JSON API for client, order and partner integrations. Every JSON
+    response uses the same envelope: state=0 for success, state=1 for errors.
+    Private endpoints use Sanctum Bearer tokens. Tokens may also require
+    HMAC-SHA256 request signing with X-Api-Timestamp, X-Api-Nonce and
+    X-Api-Signature headers.
+servers:
+  - url: /api/v3
+security:
+  - sanctumBearer: []
+tags:
+  - name: System
+  - name: Client
+  - name: Orders
+  - name: Exchange
+  - name: Files
+  - name: Verifications
+  - name: Sandbox
+  - name: Reviews
+  - name: Partner
+  - name: Platform
+  - name: Webhooks
+  - name: Security
+paths:
+  /ping:
+    get:
+      tags: [System]
+      security: []
+      summary: Public health ping
+      responses:
+        "200":
+          description: API is reachable.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessEnvelope"
+  /openapi.yaml:
+    get:
+      tags: [System]
+      security: []
+      summary: OpenAPI YAML contract
+      responses:
+        "200":
+          description: YAML document.
+          content:
+            application/yaml:
+              schema:
+                type: string
+  /public/contracts:
+    get:
+      tags: [Platform]
+      security: []
+      summary: Public contract version registry
+      responses:
+        "200":
+          description: Current contract versions.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessEnvelope"
+                  - type: object
+                    properties:
+                      result:
+                        type: object
+                        properties:
+                          contracts:
+                            type: array
+                            items:
+                              $ref: "#/components/schemas/ContractVersion"
+  /public/contracts/{contract}:
+    get:
+      tags: [Platform]
+      security: []
+      summary: Show one public contract version
+      parameters:
+        - name: contract
+          in: path
+          required: true
+          schema:
+            type: string
+            example: operation-contract
+      responses:
+        "200":
+          description: Contract version.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessEnvelope"
+                  - type: object
+                    properties:
+                      result:
+                        type: object
+                        properties:
+                          contract:
+                            $ref: "#/components/schemas/ContractVersion"
+        "404":
+          $ref: "#/components/responses/Error"
+  /public/schemas:
+    get:
+      tags: [Platform]
+      security: []
+      summary: Public JSON Schema registry
+      responses:
+        "200":
+          description: JSON Schema catalog.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessEnvelope"
+                  - type: object
+                    properties:
+                      result:
+                        type: object
+                        properties:
+                          schemas:
+                            type: array
+                            items:
+                              $ref: "#/components/schemas/SchemaRegistryItem"
+  /public/schemas/{schema}:
+    get:
+      tags: [Platform]
+      security: []
+      summary: Show one JSON Schema
+      parameters:
+        - name: schema
+          in: path
+          required: true
+          schema:
+            type: string
+            example: success-envelope.v1
+      responses:
+        "200":
+          description: JSON Schema payload.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessEnvelope"
+                  - type: object
+                    properties:
+                      result:
+                        type: object
+                        properties:
+                          schema:
+                            type: object
+                            additionalProperties: true
+        "404":
+          $ref: "#/components/responses/Error"
+  /private/ping:
+    get:
+      tags: [System]
+      summary: Authenticated health ping
+      security:
+        - sanctumBearer: []
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "401":
+          $ref: "#/components/responses/Error"
+  /private/health/client:
+    get:
+      tags: [Platform]
+      summary: Current client API health
+      security:
+        - sanctumBearer: ["public-api:client:health:read"]
+      responses:
+        "200":
+          description: Client API diagnostics.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessEnvelope"
+                  - type: object
+                    properties:
+                      result:
+                        type: object
+                        properties:
+                          health:
+                            $ref: "#/components/schemas/ClientApiHealth"
+        "403":
+          $ref: "#/components/responses/Error"
+  /private/contracts:
+    get:
+      tags: [Platform]
+      summary: Authenticated contract version registry
+      security:
+        - sanctumBearer: ["public-api:contracts:read"]
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "403":
+          $ref: "#/components/responses/Error"
+  /private/contracts/{contract}:
+    get:
+      tags: [Platform]
+      summary: Show authenticated contract version
+      security:
+        - sanctumBearer: ["public-api:contracts:read"]
+      parameters:
+        - name: contract
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "404":
+          $ref: "#/components/responses/Error"
+  /private/schemas:
+    get:
+      tags: [Platform]
+      summary: Authenticated JSON Schema registry
+      security:
+        - sanctumBearer: ["public-api:schemas:read"]
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "403":
+          $ref: "#/components/responses/Error"
+  /private/schemas/{schema}:
+    get:
+      tags: [Platform]
+      summary: Show authenticated JSON Schema
+      security:
+        - sanctumBearer: ["public-api:schemas:read"]
+      parameters:
+        - name: schema
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "404":
+          $ref: "#/components/responses/Error"
+  /public/orders/statuses:
+    get:
+      tags: [Orders]
+      security: []
+      summary: Public order status dictionary
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /private/scopes:
+    get:
+      tags: [Security]
+      summary: List public API scopes
+      security:
+        - sanctumBearer: ["public-api:scopes:read"]
+      responses:
+        "200":
+          description: Scope catalog.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessEnvelope"
+                  - type: object
+                    properties:
+                      result:
+                        type: object
+                        properties:
+                          scopes:
+                            type: array
+                            items:
+                              $ref: "#/components/schemas/ApiScope"
+        "403":
+          $ref: "#/components/responses/Error"
+  /private/usage:
+    get:
+      tags: [Platform]
+      summary: API usage, quota and billing summary
+      security:
+        - sanctumBearer: ["public-api:usage:read"]
+      responses:
+        "200":
+          description: Current token usage summary.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessEnvelope"
+                  - type: object
+                    properties:
+                      result:
+                        $ref: "#/components/schemas/UsageSummary"
+        "403":
+          $ref: "#/components/responses/Error"
+        "429":
+          $ref: "#/components/responses/Error"
+  /private/webhooks:
+    get:
+      tags: [Webhooks]
+      summary: List webhook endpoints
+      security:
+        - sanctumBearer: ["public-api:webhooks:read"]
+      responses:
+        "200":
+          description: Webhook endpoint list and event catalog.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessEnvelope"
+                  - type: object
+                    properties:
+                      result:
+                        type: object
+                        properties:
+                          endpoints:
+                            type: array
+                            items:
+                              $ref: "#/components/schemas/WebhookEndpoint"
+                          events:
+                            type: array
+                            items:
+                              $ref: "#/components/schemas/WebhookEventCatalogItem"
+                          limits:
+                            type: object
+        "403":
+          $ref: "#/components/responses/Error"
+    post:
+      tags: [Webhooks]
+      summary: Create webhook endpoint
+      security:
+        - sanctumBearer: ["public-api:webhooks:write"]
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WebhookEndpointCreate"
+      responses:
+        "201":
+          description: Webhook endpoint with one-time secret.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessEnvelope"
+                  - type: object
+                    properties:
+                      result:
+                        type: object
+                        properties:
+                          endpoint:
+                            allOf:
+                              - $ref: "#/components/schemas/WebhookEndpoint"
+                              - type: object
+                                properties:
+                                  secret:
+                                    type: string
+                                    description: One-time webhook signing secret.
+        "409":
+          $ref: "#/components/responses/Error"
+        "422":
+          $ref: "#/components/responses/Error"
+  /private/webhooks/test:
+    post:
+      tags: [Webhooks]
+      summary: Create a test webhook event
+      security:
+        - sanctumBearer: ["public-api:webhooks:write"]
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationId"
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WebhookTestRequest"
+      responses:
+        "201":
+          description: Created webhook event and delivery ids.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessEnvelope"
+                  - type: object
+                    properties:
+                      result:
+                        $ref: "#/components/schemas/WebhookTestResult"
+        "409":
+          $ref: "#/components/responses/Error"
+        "422":
+          $ref: "#/components/responses/Error"
+  /private/webhooks/events:
+    get:
+      tags: [Webhooks]
+      summary: List webhook events
+      security:
+        - sanctumBearer: ["public-api:webhooks:deliveries:read"]
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PerPage"
+        - $ref: "#/components/parameters/PaginationMode"
+        - $ref: "#/components/parameters/Cursor"
+        - name: filter[status]
+          in: query
+          schema:
+            type: string
+        - name: filter[event_type]
+          in: query
+          schema:
+            type: string
+        - name: filter[resource_type]
+          in: query
+          schema:
+            type: string
+        - name: filter[resource_id]
+          in: query
+          schema:
+            type: string
+        - name: filter[correlation_id]
+          in: query
+          schema:
+            type: string
+        - name: filter[created_from]
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: filter[created_to]
+          in: query
+          schema:
+            type: string
+            format: date-time
+      responses:
+        "200":
+          description: Webhook event list.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessEnvelope"
+                  - type: object
+                    properties:
+                      result:
+                        type: object
+                        properties:
+                          events:
+                            type: array
+                            items:
+                              $ref: "#/components/schemas/WebhookEvent"
+        "403":
+          $ref: "#/components/responses/Error"
+  /private/webhooks/events/{event}:
+    get:
+      tags: [Webhooks]
+      summary: Show webhook event
+      security:
+        - sanctumBearer: ["public-api:webhooks:deliveries:read"]
+      parameters:
+        - name: event
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Webhook event with deliveries.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessEnvelope"
+                  - type: object
+                    properties:
+                      result:
+                        type: object
+                        properties:
+                          event:
+                            $ref: "#/components/schemas/WebhookEvent"
+        "404":
+          $ref: "#/components/responses/Error"
+  /private/webhooks/deliveries:
+    get:
+      tags: [Webhooks]
+      summary: List webhook delivery attempts
+      security:
+        - sanctumBearer: ["public-api:webhooks:deliveries:read"]
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PerPage"
+        - $ref: "#/components/parameters/PaginationMode"
+        - $ref: "#/components/parameters/Cursor"
+        - name: filter[status]
+          in: query
+          schema:
+            type: string
+        - name: filter[endpoint_id]
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: filter[event_id]
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: filter[event_type]
+          in: query
+          schema:
+            type: string
+        - name: filter[correlation_id]
+          in: query
+          schema:
+            type: string
+        - name: filter[created_from]
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: filter[created_to]
+          in: query
+          schema:
+            type: string
+            format: date-time
+      responses:
+        "200":
+          description: Webhook delivery list.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessEnvelope"
+                  - type: object
+                    properties:
+                      result:
+                        type: object
+                        properties:
+                          deliveries:
+                            type: array
+                            items:
+                              $ref: "#/components/schemas/WebhookDelivery"
+        "403":
+          $ref: "#/components/responses/Error"
+  /private/webhooks/deliveries/{delivery}:
+    get:
+      tags: [Webhooks]
+      summary: Show webhook delivery attempt
+      security:
+        - sanctumBearer: ["public-api:webhooks:deliveries:read"]
+      parameters:
+        - name: delivery
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Webhook delivery.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessEnvelope"
+                  - type: object
+                    properties:
+                      result:
+                        type: object
+                        properties:
+                          delivery:
+                            $ref: "#/components/schemas/WebhookDelivery"
+        "404":
+          $ref: "#/components/responses/Error"
+  /private/webhooks/deliveries/{delivery}/retry:
+    post:
+      tags: [Webhooks]
+      summary: Retry webhook delivery attempt
+      security:
+        - sanctumBearer: ["public-api:webhooks:deliveries:retry"]
+      parameters:
+        - name: delivery
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationId"
+      responses:
+        "200":
+          description: Delivery queued for retry.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessEnvelope"
+                  - type: object
+                    properties:
+                      result:
+                        type: object
+                        properties:
+                          delivery:
+                            $ref: "#/components/schemas/WebhookDelivery"
+        "404":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+  /private/webhooks/{webhook}:
+    get:
+      tags: [Webhooks]
+      summary: Show webhook endpoint
+      security:
+        - sanctumBearer: ["public-api:webhooks:read"]
+      parameters:
+        - $ref: "#/components/parameters/WebhookId"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "404":
+          $ref: "#/components/responses/Error"
+    patch:
+      tags: [Webhooks]
+      summary: Update webhook endpoint
+      security:
+        - sanctumBearer: ["public-api:webhooks:write"]
+      parameters:
+        - $ref: "#/components/parameters/WebhookId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WebhookEndpointUpdate"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "404":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+        "422":
+          $ref: "#/components/responses/Error"
+    delete:
+      tags: [Webhooks]
+      summary: Delete webhook endpoint
+      security:
+        - sanctumBearer: ["public-api:webhooks:write"]
+      parameters:
+        - $ref: "#/components/parameters/WebhookId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationId"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "404":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+  /private/webhooks/{webhook}/rotate-secret:
+    post:
+      tags: [Webhooks]
+      summary: Rotate webhook signing secret
+      security:
+        - sanctumBearer: ["public-api:webhooks:write"]
+      parameters:
+        - $ref: "#/components/parameters/WebhookId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationId"
+      responses:
+        "200":
+          description: Webhook endpoint with one-time new secret.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessEnvelope"
+                  - type: object
+                    properties:
+                      result:
+                        type: object
+                        properties:
+                          endpoint:
+                            allOf:
+                              - $ref: "#/components/schemas/WebhookEndpoint"
+                              - type: object
+                                properties:
+                                  secret:
+                                    type: string
+        "404":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+  /private/client:
+    get:
+      tags: [Client]
+      summary: Current client profile
+      security:
+        - sanctumBearer: ["public-api:client:read"]
+      responses:
+        "200":
+          description: Client profile.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessEnvelope"
+                  - type: object
+                    properties:
+                      result:
+                        $ref: "#/components/schemas/Client"
+  /private/exchange/payment-systems:
+    get:
+      tags: [Exchange]
+      summary: List active payment systems
+      security:
+        - sanctumBearer: ["public-api:exchange:routes:read"]
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PerPage"
+        - $ref: "#/components/parameters/PaginationMode"
+        - $ref: "#/components/parameters/Cursor"
+        - name: sort
+          in: query
+          schema:
+            type: string
+            example: sorting,id
+        - name: filter[id]
+          in: query
+          schema:
+            type: integer
+        - name: filter[payment_id]
+          in: query
+          schema:
+            type: integer
+        - name: filter[code_currency_id]
+          in: query
+          schema:
+            type: integer
+        - name: filter[side]
+          in: query
+          schema:
+            type: string
+            enum: [give, receive, both]
+        - name: filter[from_currency_id]
+          in: query
+          schema:
+            type: integer
+        - name: filter[to_currency_id]
+          in: query
+          schema:
+            type: integer
+        - name: filter[currency_code]
+          in: query
+          schema:
+            type: string
+            example: USDT
+        - name: filter[letter_code]
+          in: query
+          schema:
+            type: string
+            example: USDTTRC20
+        - name: filter[short_code]
+          in: query
+          schema:
+            type: string
+            example: USDT
+        - name: filter[network]
+          in: query
+          schema:
+            type: string
+            example: TRON
+      responses:
+        "200":
+          description: Active payment systems.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessEnvelope"
+                  - type: object
+                    properties:
+                      result:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/PaymentSystem"
+        "403":
+          $ref: "#/components/responses/Error"
+  /private/exchange/routes:
+    get:
+      tags: [Exchange]
+      summary: List active exchange routes
+      security:
+        - sanctumBearer: ["public-api:exchange:routes:read"]
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PerPage"
+        - $ref: "#/components/parameters/PaginationMode"
+        - $ref: "#/components/parameters/Cursor"
+        - name: sort
+          in: query
+          schema:
+            type: string
+            example: sorting,id
+        - name: filter[id]
+          in: query
+          schema:
+            type: integer
+        - name: filter[from_currency_id]
+          in: query
+          schema:
+            type: integer
+        - name: filter[to_currency_id]
+          in: query
+          schema:
+            type: integer
+        - name: filter[from]
+          in: query
+          schema:
+            type: string
+            example: USDT
+        - name: filter[to]
+          in: query
+          schema:
+            type: string
+            example: USD
+      responses:
+        "200":
+          description: Active exchange routes.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessEnvelope"
+                  - type: object
+                    properties:
+                      result:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/ExchangeRoute"
+        "403":
+          $ref: "#/components/responses/Error"
+  /private/exchange/routes/{route}:
+    get:
+      tags: [Exchange]
+      summary: Show active exchange route
+      security:
+        - sanctumBearer: ["public-api:exchange:routes:read"]
+      parameters:
+        - name: route
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Exchange route.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessEnvelope"
+                  - type: object
+                    properties:
+                      result:
+                        $ref: "#/components/schemas/ExchangeRoute"
+        "404":
+          $ref: "#/components/responses/Error"
+  /private/exchange/routes/details:
+    get:
+      tags: [Exchange]
+      summary: Show exchange route details by currency pair
+      security:
+        - sanctumBearer: ["public-api:exchange:routes:read"]
+      parameters:
+        - name: route_id
+          in: query
+          schema:
+            type: integer
+        - name: direction_id
+          in: query
+          schema:
+            type: integer
+        - name: from_currency_id
+          in: query
+          schema:
+            type: integer
+        - name: to_currency_id
+          in: query
+          schema:
+            type: integer
+        - name: from
+          in: query
+          schema:
+            type: string
+            example: USDT
+        - name: to
+          in: query
+          schema:
+            type: string
+            example: USD
+      responses:
+        "200":
+          description: Exchange route details compatible with client operation payload.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessEnvelope"
+                  - type: object
+                    properties:
+                      result:
+                        $ref: "#/components/schemas/ExchangeRouteDetail"
+        "404":
+          $ref: "#/components/responses/Error"
+        "422":
+          $ref: "#/components/responses/Error"
+  /private/exchange/routes/{route}/details:
+    get:
+      tags: [Exchange]
+      summary: Show exchange route details by id
+      security:
+        - sanctumBearer: ["public-api:exchange:routes:read"]
+      parameters:
+        - name: route
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Exchange route details compatible with client operation payload.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessEnvelope"
+                  - type: object
+                    properties:
+                      result:
+                        $ref: "#/components/schemas/ExchangeRouteDetail"
+        "404":
+          $ref: "#/components/responses/Error"
+  /private/exchange/routes/{route}/capabilities:
+    get:
+      tags: [Exchange]
+      summary: Show route capability matrix by id
+      security:
+        - sanctumBearer: ["public-api:exchange:capabilities:read"]
+      parameters:
+        - name: route
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Route capability matrix.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessEnvelope"
+                  - type: object
+                    properties:
+                      result:
+                        type: object
+                        properties:
+                          capabilities:
+                            $ref: "#/components/schemas/RouteCapabilities"
+        "404":
+          $ref: "#/components/responses/Error"
+  /private/exchange/routes/{from}/{to}/details:
+    get:
+      tags: [Exchange]
+      summary: Show exchange route details by selected currency pair ids
+      security:
+        - sanctumBearer: ["public-api:exchange:routes:read"]
+      parameters:
+        - name: from
+          in: path
+          required: true
+          description: Currency/payment-system id selected as give side.
+          schema:
+            type: integer
+        - name: to
+          in: path
+          required: true
+          description: Currency/payment-system id selected as receive side.
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Exchange route details compatible with client operation payload.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessEnvelope"
+                  - type: object
+                    properties:
+                      result:
+                        $ref: "#/components/schemas/ExchangeRouteDetail"
+        "404":
+          $ref: "#/components/responses/Error"
+  /private/exchange/routes/{from}/{to}/capabilities:
+    get:
+      tags: [Exchange]
+      summary: Show route capability matrix by selected currency pair ids
+      security:
+        - sanctumBearer: ["public-api:exchange:capabilities:read"]
+      parameters:
+        - name: from
+          in: path
+          required: true
+          description: Currency/payment-system id selected as give side.
+          schema:
+            type: integer
+        - name: to
+          in: path
+          required: true
+          description: Currency/payment-system id selected as receive side.
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Route capability matrix.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessEnvelope"
+                  - type: object
+                    properties:
+                      result:
+                        type: object
+                        properties:
+                          capabilities:
+                            $ref: "#/components/schemas/RouteCapabilities"
+        "404":
+          $ref: "#/components/responses/Error"
+  /private/exchange/quotes:
+    post:
+      tags: [Exchange]
+      summary: Preview exchange calculation
+      security:
+        - sanctumBearer: ["public-api:exchange:quotes:read"]
+      parameters:
+        - $ref: "#/components/parameters/CorrelationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExchangeQuoteRequest"
+      responses:
+        "200":
+          description: Quote without order creation.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessEnvelope"
+                  - type: object
+                    properties:
+                      result:
+                        type: object
+                        properties:
+                          quote:
+                            $ref: "#/components/schemas/ExchangeQuote"
+                          snapshot:
+                            $ref: "#/components/schemas/RouteSnapshot"
+        "422":
+          $ref: "#/components/responses/Error"
+  /private/exchange/orders/preflight:
+    post:
+      tags: [Exchange]
+      summary: Validate an exchange order before creation
+      security:
+        - sanctumBearer: ["public-api:exchange:preflight:read"]
+      parameters:
+        - $ref: "#/components/parameters/CorrelationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExchangeOrderPreflightRequest"
+      responses:
+        "200":
+          description: Preflight result with quote, operation contract, requirements and route snapshot.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessEnvelope"
+                  - type: object
+                    properties:
+                      result:
+                        type: object
+                        properties:
+                          preflight:
+                            $ref: "#/components/schemas/ExchangeOrderPreflight"
+        "422":
+          $ref: "#/components/responses/Error"
+  /private/exchange/orders:
+    post:
+      tags: [Exchange]
+      summary: Create exchange order
+      security:
+        - sanctumBearer: ["public-api:exchange:orders:create"]
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExchangeOrderCreateRequest"
+      responses:
+        "201":
+          description: Created order.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessEnvelope"
+                  - type: object
+                    properties:
+                      result:
+                        type: object
+                        properties:
+                          order:
+                            $ref: "#/components/schemas/Order"
+        "403":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+        "422":
+          $ref: "#/components/responses/Error"
+  /private/exchange/orders/{order}:
+    get:
+      tags: [Exchange]
+      summary: Show current client exchange order
+      security:
+        - sanctumBearer: ["public-api:orders:read"]
+      parameters:
+        - name: order
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Database id, public_id or tracking_id.
+      responses:
+        "200":
+          description: Current client order.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessEnvelope"
+                  - type: object
+                    properties:
+                      result:
+                        $ref: "#/components/schemas/Order"
+        "404":
+          $ref: "#/components/responses/Error"
+    delete:
+      tags: [Exchange]
+      summary: Cancel current client exchange order
+      security:
+        - sanctumBearer: ["public-api:exchange:orders:cancel"]
+      parameters:
+        - name: order
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Database id, public_id or tracking_id.
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationId"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "404":
+          $ref: "#/components/responses/Error"
+        "422":
+          $ref: "#/components/responses/Error"
+  /private/exchange/orders/{order}/status:
+    get:
+      tags: [Exchange]
+      summary: Show compact order status
+      security:
+        - sanctumBearer: ["public-api:orders:read"]
+      parameters:
+        - name: order
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Database id, public_id or tracking_id.
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "404":
+          $ref: "#/components/responses/Error"
+  /private/exchange/orders/{order}/actions:
+    get:
+      tags: [Exchange]
+      summary: Show order state machine and allowed actions
+      security:
+        - sanctumBearer: ["public-api:exchange:orders:actions:read"]
+      parameters:
+        - name: order
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Database id, public_id or tracking_id.
+      responses:
+        "200":
+          description: Order state machine.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessEnvelope"
+                  - type: object
+                    properties:
+                      result:
+                        type: object
+                        properties:
+                          actions:
+                            $ref: "#/components/schemas/OrderActions"
+        "404":
+          $ref: "#/components/responses/Error"
+  /private/exchange/orders/{order}/confirm:
+    post:
+      tags: [Exchange]
+      summary: Confirm payment or mark order unpaid
+      security:
+        - sanctumBearer: ["public-api:exchange:orders:confirm"]
+      parameters:
+        - name: order
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Database id, public_id or tracking_id.
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExchangeOrderConfirmRequest"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "404":
+          $ref: "#/components/responses/Error"
+        "422":
+          $ref: "#/components/responses/Error"
+  /private/exchange/orders/{order}/cancel:
+    post:
+      tags: [Exchange]
+      summary: Cancel current client exchange order
+      security:
+        - sanctumBearer: ["public-api:exchange:orders:cancel"]
+      parameters:
+        - name: order
+          in: path
+          required: true
+          schema:
+            type: string
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationId"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "404":
+          $ref: "#/components/responses/Error"
+        "422":
+          $ref: "#/components/responses/Error"
+  /private/exchange/orders/{order}/verifications:
+    get:
+      tags: [Verifications]
+      summary: Show verification requirements for an order
+      security:
+        - sanctumBearer: ["public-api:verifications:read"]
+      parameters:
+        - name: order
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Database id, public_id or tracking_id.
+      responses:
+        "200":
+          description: Order verification requirements.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessEnvelope"
+                  - type: object
+                    properties:
+                      result:
+                        type: object
+                        properties:
+                          requirements:
+                            $ref: "#/components/schemas/VerificationRequirements"
+        "404":
+          $ref: "#/components/responses/Error"
+  /private/exchange/orders/{order}/verifications/submit:
+    post:
+      tags: [Verifications]
+      summary: Submit verification data for an order
+      security:
+        - sanctumBearer: ["public-api:verifications:write"]
+      parameters:
+        - name: order
+          in: path
+          required: true
+          schema:
+            type: string
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderVerificationSubmitRequest"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "422":
+          $ref: "#/components/responses/Error"
+  /private/files/upload-intents:
+    post:
+      tags: [Files]
+      summary: Create a one-time upload intent
+      security:
+        - sanctumBearer: ["public-api:files:write"]
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UploadIntentCreateRequest"
+      responses:
+        "201":
+          description: Upload intent.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessEnvelope"
+                  - type: object
+                    properties:
+                      result:
+                        type: object
+                        properties:
+                          upload_intent:
+                            $ref: "#/components/schemas/UploadIntent"
+        "422":
+          $ref: "#/components/responses/Error"
+  /private/files/upload-intents/{intent}:
+    get:
+      tags: [Files]
+      summary: Show upload intent status
+      security:
+        - sanctumBearer: ["public-api:files:read"]
+      parameters:
+        - name: intent
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Upload intent.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessEnvelope"
+                  - type: object
+                    properties:
+                      result:
+                        type: object
+                        properties:
+                          upload_intent:
+                            $ref: "#/components/schemas/UploadIntent"
+        "404":
+          $ref: "#/components/responses/Error"
+  /private/files/upload-intents/{intent}/commit:
+    post:
+      tags: [Files]
+      summary: Upload file into an intent
+      security:
+        - sanctumBearer: ["public-api:files:write"]
+      parameters:
+        - name: intent
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationId"
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "422":
+          $ref: "#/components/responses/Error"
+  /private/verifications/requirements:
+    get:
+      tags: [Verifications]
+      summary: Show verification requirements for route or order
+      security:
+        - sanctumBearer: ["public-api:verifications:read"]
+      parameters:
+        - name: order
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: route_id
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: income_payment_system
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: outcome_payment_system
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "422":
+          $ref: "#/components/responses/Error"
+  /private/verifications/identity:
+    post:
+      tags: [Verifications]
+      summary: Create identity verification
+      security:
+        - sanctumBearer: ["public-api:verifications:write"]
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IdentityVerificationCreateRequest"
+      responses:
+        "201":
+          $ref: "#/components/responses/Success"
+        "422":
+          $ref: "#/components/responses/Error"
+  /private/verifications/identity/{verification}:
+    get:
+      tags: [Verifications]
+      summary: Show identity verification
+      security:
+        - sanctumBearer: ["public-api:verifications:read"]
+      parameters:
+        - name: verification
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "404":
+          $ref: "#/components/responses/Error"
+  /private/verifications/identity/{verification}/actions:
+    get:
+      tags: [Verifications]
+      summary: Show identity verification actions
+      security:
+        - sanctumBearer: ["public-api:verifications:read"]
+      parameters:
+        - name: verification
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /private/verifications/cards:
+    post:
+      tags: [Verifications]
+      summary: Create card/account verification
+      security:
+        - sanctumBearer: ["public-api:verifications:write"]
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CardVerificationCreateRequest"
+      responses:
+        "201":
+          $ref: "#/components/responses/Success"
+        "422":
+          $ref: "#/components/responses/Error"
+  /private/verifications/cards/{verification}:
+    get:
+      tags: [Verifications]
+      summary: Show card/account verification
+      security:
+        - sanctumBearer: ["public-api:verifications:read"]
+      parameters:
+        - name: verification
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "404":
+          $ref: "#/components/responses/Error"
+  /private/verifications/cards/{verification}/actions:
+    get:
+      tags: [Verifications]
+      summary: Show card/account verification actions
+      security:
+        - sanctumBearer: ["public-api:verifications:read"]
+      parameters:
+        - name: verification
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /private/sandbox/exchange/orders/simulate:
+    post:
+      tags: [Sandbox]
+      summary: Simulate exchange order creation without writing tasks
+      security:
+        - sanctumBearer: ["public-api:sandbox:run"]
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExchangeOrderPreflightRequest"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "422":
+          $ref: "#/components/responses/Error"
+  /private/reviews:
+    get:
+      tags: [Reviews]
+      summary: List published reviews
+      security:
+        - sanctumBearer: ["public-api:reviews:read"]
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PerPage"
+        - $ref: "#/components/parameters/PaginationMode"
+        - $ref: "#/components/parameters/Cursor"
+        - name: filter[rating]
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 5
+        - name: filter[order_id]
+          in: query
+          schema:
+            type: integer
+        - name: filter[created_from]
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: filter[created_to]
+          in: query
+          schema:
+            type: string
+            format: date-time
+      responses:
+        "200":
+          description: Published reviews.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessEnvelope"
+                  - type: object
+                    properties:
+                      result:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Review"
+    post:
+      tags: [Reviews]
+      summary: Create review for own order
+      security:
+        - sanctumBearer: ["public-api:reviews:write"]
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReviewCreateRequest"
+      responses:
+        "201":
+          description: Review sent to moderation.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessEnvelope"
+                  - type: object
+                    properties:
+                      result:
+                        type: object
+                        properties:
+                          review:
+                            $ref: "#/components/schemas/Review"
+        "404":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+        "422":
+          $ref: "#/components/responses/Error"
+  /private/orders/statuses:
+    get:
+      tags: [Orders]
+      summary: Order status dictionary
+      security:
+        - sanctumBearer: ["public-api:orders:read"]
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /private/orders:
+    get:
+      tags: [Orders]
+      summary: List current client orders
+      security:
+        - sanctumBearer: ["public-api:orders:read"]
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PerPage"
+        - $ref: "#/components/parameters/PaginationMode"
+        - $ref: "#/components/parameters/Cursor"
+        - name: sort
+          in: query
+          schema:
+            type: string
+            example: -created_at
+          description: "Comma-separated sort fields. Allowed: id, created_at, updated_at, completed_at, amount_in, amount_out, status."
+        - name: filter[status]
+          in: query
+          schema:
+            type: string
+            example: paid,completed
+        - name: filter[id]
+          in: query
+          schema:
+            type: integer
+        - name: filter[public_id]
+          in: query
+          schema:
+            type: string
+        - name: filter[tracking_id]
+          in: query
+          schema:
+            type: string
+        - name: filter[email]
+          in: query
+          schema:
+            type: string
+        - name: filter[from_requisite]
+          in: query
+          schema:
+            type: string
+        - name: filter[to_requisite]
+          in: query
+          schema:
+            type: string
+        - name: filter[created_from]
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: filter[created_to]
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: filter[currency]
+          in: query
+          schema:
+            type: string
+            example: USDT
+        - name: filter[amount_min]
+          in: query
+          schema:
+            type: string
+        - name: filter[amount_max]
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "403":
+          $ref: "#/components/responses/Error"
+  /private/orders/{order}:
+    get:
+      tags: [Orders]
+      summary: Show one current client order
+      security:
+        - sanctumBearer: ["public-api:orders:read"]
+      parameters:
+        - name: order
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Database id, public_id or tracking_id.
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "404":
+          $ref: "#/components/responses/Error"
+  /private/partner:
+    get:
+      tags: [Partner]
+      summary: Partner profile and summary
+      security:
+        - sanctumBearer: ["public-api:partner:read"]
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /private/partner/statistics:
+    get:
+      tags: [Partner]
+      summary: Partner aggregated statistics
+      security:
+        - sanctumBearer: ["public-api:partner:statistics:read"]
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /private/partner/referrals:
+    get:
+      tags: [Partner]
+      summary: Attracted clients list
+      security:
+        - sanctumBearer: ["public-api:partner:referrals:read"]
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PerPage"
+        - $ref: "#/components/parameters/PaginationMode"
+        - $ref: "#/components/parameters/Cursor"
+        - name: filter[id]
+          in: query
+          schema:
+            type: integer
+        - name: filter[client_id]
+          in: query
+          schema:
+            type: integer
+        - name: filter[client_email]
+          in: query
+          schema:
+            type: string
+        - name: filter[client_name]
+          in: query
+          schema:
+            type: string
+        - name: filter[created_from]
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: filter[created_to]
+          in: query
+          schema:
+            type: string
+            format: date-time
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /private/partner/exchanges:
+    get:
+      tags: [Partner]
+      summary: Referral bonus exchanges
+      security:
+        - sanctumBearer: ["public-api:partner:exchanges:read"]
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PerPage"
+        - $ref: "#/components/parameters/PaginationMode"
+        - $ref: "#/components/parameters/Cursor"
+        - name: filter[id]
+          in: query
+          schema:
+            type: integer
+        - name: filter[order_id]
+          in: query
+          schema:
+            type: integer
+        - name: filter[client_id]
+          in: query
+          schema:
+            type: integer
+        - name: filter[status]
+          in: query
+          schema:
+            type: string
+        - name: filter[order_public_id]
+          in: query
+          schema:
+            type: string
+        - name: filter[order_tracking_id]
+          in: query
+          schema:
+            type: string
+        - name: filter[client_email]
+          in: query
+          schema:
+            type: string
+        - name: filter[bonus_min]
+          in: query
+          schema:
+            type: string
+        - name: filter[bonus_max]
+          in: query
+          schema:
+            type: string
+        - name: filter[created_from]
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: filter[created_to]
+          in: query
+          schema:
+            type: string
+            format: date-time
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /private/partner/payouts:
+    get:
+      tags: [Partner]
+      summary: Partner payout requests
+      security:
+        - sanctumBearer: ["public-api:partner:payouts:read"]
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PerPage"
+        - $ref: "#/components/parameters/PaginationMode"
+        - $ref: "#/components/parameters/Cursor"
+        - name: filter[id]
+          in: query
+          schema:
+            type: integer
+        - name: filter[public_id]
+          in: query
+          schema:
+            type: string
+        - name: filter[wallet]
+          in: query
+          schema:
+            type: string
+        - name: filter[tx_id]
+          in: query
+          schema:
+            type: string
+        - name: filter[status]
+          in: query
+          schema:
+            type: string
+            enum: [pending, paid, rejected]
+        - name: filter[currency]
+          in: query
+          schema:
+            type: string
+        - name: filter[amount_min]
+          in: query
+          schema:
+            type: string
+        - name: filter[amount_max]
+          in: query
+          schema:
+            type: string
+        - name: filter[created_from]
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: filter[created_to]
+          in: query
+          schema:
+            type: string
+            format: date-time
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+components:
+  securitySchemes:
+    sanctumBearer:
+      type: http
+      scheme: bearer
+      bearerFormat: Sanctum
+      description: "Sanctum token in `Authorization: Bearer <token>` format."
+    apiTimestamp:
+      type: apiKey
+      in: header
+      name: X-Api-Timestamp
+      description: Unix timestamp or ISO-8601 timestamp used by HMAC signed requests.
+    apiNonce:
+      type: apiKey
+      in: header
+      name: X-Api-Nonce
+      description: Unique nonce per token within the signature time window.
+    apiSignature:
+      type: apiKey
+      in: header
+      name: X-Api-Signature
+      description: Hex HMAC-SHA256 signature, optionally prefixed with `sha256=`.
+  parameters:
+    Page:
+      name: page
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    PerPage:
+      name: per_page
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 25
+    PaginationMode:
+      name: pagination
+      in: query
+      schema:
+        type: string
+        enum: [page, cursor]
+        default: page
+      description: Use `cursor` for large datasets. The first cursor page uses `pagination=cursor`; next pages use `cursor`.
+    Cursor:
+      name: cursor
+      in: query
+      schema:
+        type: string
+        nullable: true
+      description: Opaque cursor returned in `meta.pagination.next_cursor`.
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: false
+      schema:
+        type: string
+        minLength: 8
+        maxLength: 191
+      description: Makes unsafe requests safely repeatable for 24 hours by default.
+    CorrelationId:
+      name: X-Correlation-Id
+      in: header
+      required: false
+      schema:
+        type: string
+        maxLength: 128
+      description: Client-defined id used to correlate API request and webhook events.
+    WebhookId:
+      name: webhook
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  responses:
+    Success:
+      description: Standard success envelope.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/SuccessEnvelope"
+    Error:
+      description: Standard error envelope.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+  schemas:
+    SuccessEnvelope:
+      type: object
+      required: [state, message, result, meta]
+      properties:
+        state:
+          type: integer
+          enum: [0]
+        message:
+          type: string
+        result:
+          nullable: true
+        meta:
+          $ref: "#/components/schemas/Meta"
+    ErrorEnvelope:
+      type: object
+      required: [state, message, code, error, meta]
+      properties:
+        state:
+          type: integer
+          enum: [1]
+        message:
+          type: string
+        code:
+          type: integer
+          description: HTTP status code.
+        error:
+          type: object
+          required: [code, type, details]
+          properties:
+            code:
+              type: string
+              description: Stable machine-readable API error code.
+            type:
+              type: string
+              deprecated: true
+              description: Backward-compatible alias of `error.code`.
+            details:
+              nullable: true
+        meta:
+          $ref: "#/components/schemas/Meta"
+    Meta:
+      type: object
+      properties:
+        request_id:
+          type: string
+        correlation_id:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+    Pagination:
+      type: object
+      properties:
+        mode:
+          type: string
+          enum: [page, cursor]
+        current_page:
+          type: integer
+          nullable: true
+        per_page:
+          type: integer
+        total:
+          type: integer
+          nullable: true
+        last_page:
+          type: integer
+          nullable: true
+        from:
+          type: integer
+          nullable: true
+        to:
+          type: integer
+          nullable: true
+        cursor:
+          type: string
+          nullable: true
+        next_cursor:
+          type: string
+          nullable: true
+        has_more:
+          type: boolean
+    Client:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        balance:
+          type: object
+        orders:
+          type: object
+        api_token:
+          $ref: "#/components/schemas/ApiTokenSummary"
+          nullable: true
+    ApiScope:
+      type: object
+      required: [scope, group, title, description, risk, grantable, endpoints]
+      properties:
+        scope:
+          type: string
+          example: public-api:client:read
+        group:
+          type: string
+          example: client
+        title:
+          type: string
+          example: Client profile
+        description:
+          type: string
+        risk:
+          type: string
+          enum: [low, standard, medium, high]
+        grantable:
+          type: boolean
+        endpoints:
+          type: array
+          items:
+            type: string
+    ApiTokenSummary:
+      type: object
+      nullable: true
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        scopes:
+          type: array
+          items:
+            type: string
+        scope_details:
+          type: array
+          items:
+            $ref: "#/components/schemas/ApiScope"
+        security:
+          type: object
+          properties:
+            hmac_required:
+              type: boolean
+            hmac_verified:
+              type: boolean
+            signature_algorithm:
+              type: string
+        last_used_at:
+          type: string
+          format: date-time
+          nullable: true
+        expires_at:
+          type: string
+          format: date-time
+          nullable: true
+    UsagePeriod:
+      type: object
+      required: [limit, used, remaining, resets_at]
+      properties:
+        limit:
+          type: integer
+          nullable: true
+        used:
+          type: integer
+        remaining:
+          type: integer
+          nullable: true
+        resets_at:
+          type: string
+          format: date-time
+    UsageSummary:
+      type: object
+      properties:
+        api_token:
+          type: object
+          nullable: true
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+            status:
+              type: string
+            plan:
+              type: string
+            billable:
+              type: boolean
+        quota:
+          type: object
+          nullable: true
+          properties:
+            day:
+              $ref: "#/components/schemas/UsagePeriod"
+            month:
+              $ref: "#/components/schemas/UsagePeriod"
+        billing:
+          type: object
+          nullable: true
+          properties:
+            currency:
+              type: string
+            unit_price:
+              type: string
+            billable_units:
+              type: integer
+            estimated_amount:
+              type: string
+        usage:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              requests:
+                type: integer
+              errors:
+                type: integer
+              billable_units:
+                type: integer
+              total_duration_ms:
+                type: integer
+    CurrencySummary:
+      type: object
+      properties:
+        id:
+          type: integer
+        payment:
+          type: string
+          nullable: true
+        code:
+          type: string
+          nullable: true
+        designation:
+          type: string
+          nullable: true
+        small_code:
+          type: string
+          nullable: true
+        network:
+          type: string
+          nullable: true
+        network_out:
+          type: string
+          nullable: true
+        decimal:
+          type: integer
+    PaymentSystem:
+      type: object
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+          enum: [payment_system]
+        name:
+          type: string
+        payment:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+            logo:
+              type: string
+              nullable: true
+            logo_url:
+              type: string
+              nullable: true
+        currency:
+          type: object
+          properties:
+            id:
+              type: integer
+            code:
+              type: string
+            sign:
+              type: string
+              nullable: true
+        codes:
+          type: object
+          properties:
+            letter:
+              type: string
+              nullable: true
+            short:
+              type: string
+              nullable: true
+            network_in:
+              type: string
+              nullable: true
+            network_out:
+              type: string
+              nullable: true
+        precision:
+          type: object
+          properties:
+            amount_decimal:
+              type: integer
+        capabilities:
+          type: object
+          properties:
+            can_give:
+              type: boolean
+            can_receive:
+              type: boolean
+            income_enabled:
+              type: integer
+            outcome_enabled:
+              type: integer
+        routes:
+          type: object
+          properties:
+            give_to:
+              type: array
+              items:
+                type: object
+                properties:
+                  route_id:
+                    type: integer
+                  currency_id:
+                    type: integer
+            receive_from:
+              type: array
+              items:
+                type: object
+                properties:
+                  route_id:
+                    type: integer
+                  currency_id:
+                    type: integer
+        form:
+          type: object
+          additionalProperties: true
+        notices:
+          type: object
+          additionalProperties: true
+        network:
+          type: object
+          nullable: true
+          additionalProperties: true
+        filters:
+          type: object
+          properties:
+            ids:
+              type: array
+              items:
+                type: integer
+        sorting:
+          type: object
+          additionalProperties:
+            type: integer
+    ExchangeRoute:
+      type: object
+      properties:
+        id:
+          type: integer
+        status:
+          type: integer
+        is_enabled:
+          type: boolean
+        name:
+          type: string
+          nullable: true
+        from:
+          $ref: "#/components/schemas/CurrencySummary"
+        to:
+          $ref: "#/components/schemas/CurrencySummary"
+        limits:
+          type: object
+          properties:
+            min_give:
+              type: string
+              nullable: true
+            max_give:
+              type: string
+              nullable: true
+            min_receive:
+              type: string
+              nullable: true
+            max_receive:
+              type: string
+              nullable: true
+        rate:
+          type: object
+          properties:
+            type:
+              type: string
+              enum: [fixed, selectable]
+            course:
+              type: string
+              nullable: true
+            is_type_rate:
+              type: boolean
+            default_type_rate:
+              type: integer
+              enum: [0, 1]
+            modes:
+              type: object
+              additionalProperties: true
+        features:
+          type: object
+          additionalProperties: true
+        sorting:
+          type: object
+          additionalProperties:
+            type: integer
+        timestamps:
+          type: object
+          additionalProperties: true
+    ExchangeRouteDetail:
+      type: object
+      properties:
+        route:
+          $ref: "#/components/schemas/ExchangeRoute"
+        operation:
+          type: object
+          description: Client operation payload compatible with backend-api client operation details.
+          additionalProperties: true
+        snapshot:
+          $ref: "#/components/schemas/RouteSnapshot"
+        operation_contract:
+          $ref: "#/components/schemas/OperationContract"
+        contract:
+          type: object
+          properties:
+            quote_endpoint:
+              type: string
+            preflight_endpoint:
+              type: string
+            order_endpoint:
+              type: string
+            amount_side:
+              type: string
+              enum: [give]
+            currency_fields:
+              type: array
+              items:
+                type: string
+    RouteSnapshot:
+      type: object
+      required: [version, route_id, hash, generated_at, expires_at]
+      properties:
+        version:
+          type: string
+          example: route-snapshot-v1
+        route_id:
+          type: integer
+        hash:
+          type: string
+        generated_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+        fingerprint:
+          type: object
+          additionalProperties: true
+    OperationContract:
+      type: object
+      properties:
+        version:
+          type: string
+          example: operation-contract-v1
+        route:
+          $ref: "#/components/schemas/ExchangeRoute"
+        operation:
+          type: object
+          additionalProperties: true
+        snapshot:
+          $ref: "#/components/schemas/RouteSnapshot"
+        contract:
+          type: object
+          additionalProperties: true
+    ExchangeQuoteRequest:
+      type: object
+      properties:
+        route_id:
+          type: integer
+          nullable: true
+        direction_id:
+          type: integer
+          nullable: true
+        income_payment_system:
+          type: integer
+          nullable: true
+        outcome_payment_system:
+          type: integer
+          nullable: true
+        from_currency_id:
+          type: integer
+          nullable: true
+        to_currency_id:
+          type: integer
+          nullable: true
+        from:
+          type: string
+          nullable: true
+        to:
+          type: string
+          nullable: true
+        from_code:
+          type: string
+          nullable: true
+        to_code:
+          type: string
+          nullable: true
+        amount:
+          type: string
+          example: "100"
+        income_amount:
+          type: string
+          nullable: true
+          description: Alias of amount.
+        city_id:
+          type: integer
+          nullable: true
+        type_rate:
+          nullable: true
+          description: "0/fixed = fixed rate, 1/floating = floating rate."
+          oneOf:
+            - type: integer
+              enum: [0, 1]
+            - type: string
+              enum: ["0", "1", fixed, floating]
+        selected_fee_type:
+          type: string
+          nullable: true
+        selected_fees:
+          type: object
+          additionalProperties: true
+        selector_fees:
+          type: object
+          additionalProperties: true
+        checkbox_fees:
+          type: object
+          additionalProperties: true
+        card_verification_required:
+          type: boolean
+          nullable: true
+      oneOf:
+        - required: [route_id]
+        - required: [direction_id]
+        - required: [income_payment_system, outcome_payment_system]
+        - required: [from_currency_id, to_currency_id]
+        - required: [from, to]
+      anyOf:
+        - required: [amount]
+        - required: [income_amount]
+    ExchangeOrderPreflightRequest:
+      allOf:
+        - $ref: "#/components/schemas/ExchangeQuoteRequest"
+        - type: object
+          properties:
+            income_account:
+              type: string
+              nullable: true
+            outcome_account:
+              type: string
+              nullable: true
+            direction_fields:
+              type: object
+              additionalProperties: true
+            user_fields:
+              type: object
+              additionalProperties: true
+            checkbox_agreements:
+              type: object
+              additionalProperties: true
+            snapshot:
+              $ref: "#/components/schemas/RouteSnapshot"
+              nullable: true
+    ExchangeOrderPreflight:
+      type: object
+      properties:
+        allowed:
+          type: boolean
+        can_create_order:
+          type: boolean
+        missing_fields:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+              type:
+                type: string
+              message:
+                type: string
+        quote:
+          $ref: "#/components/schemas/ExchangeQuote"
+        operation_contract:
+          $ref: "#/components/schemas/OperationContract"
+        requirements:
+          $ref: "#/components/schemas/VerificationRequirements"
+        snapshot:
+          $ref: "#/components/schemas/RouteSnapshot"
+    ExchangeQuote:
+      type: object
+      properties:
+        route:
+          $ref: "#/components/schemas/ExchangeRoute"
+        amounts:
+          type: object
+          properties:
+            give:
+              type: string
+            receive:
+              type: string
+        components:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        rate:
+          type: object
+          properties:
+            display:
+              type: string
+            value:
+              type: string
+            source:
+              type: string
+              enum: [calculation]
+            selected:
+              type: string
+              enum: [fixed, floating]
+              nullable: true
+            modes:
+              type: object
+              additionalProperties: true
+        base_rate:
+          type: object
+          description: Base direction rate without quote-level city, selector, checkbox or verification adjustments.
+          properties:
+            display:
+              type: string
+            value:
+              type: string
+            source:
+              type: string
+              enum: [direction]
+            selected:
+              type: string
+              enum: [fixed, floating]
+              nullable: true
+            modes:
+              type: object
+              additionalProperties: true
+            note:
+              type: string
+        adjustments:
+          type: object
+          description: Quote-level options that affected the calculation rate.
+          properties:
+            city_id:
+              type: integer
+              nullable: true
+            selected_fee_type:
+              type: string
+              nullable: true
+            selected_fees:
+              type: array
+              items: {}
+            selector_fees:
+              type: array
+              items: {}
+            checkbox_fees:
+              type: array
+              items: {}
+            card_verification_required:
+              type: boolean
+        promo:
+          type: object
+          properties:
+            applied:
+              type: boolean
+            base_receive_amount:
+              type: string
+        task_payload:
+          type: object
+          additionalProperties: true
+    ExchangeOrderCreateRequest:
+      type: object
+      properties:
+        route_id:
+          type: integer
+          nullable: true
+        direction_id:
+          type: integer
+          nullable: true
+        income_amount:
+          type: string
+          example: "100"
+        amount:
+          type: string
+          nullable: true
+          description: Alias of income_amount.
+        outcome_amount:
+          type: string
+          nullable: true
+        receive_amount:
+          type: string
+          nullable: true
+          description: Alias of outcome_amount.
+        income_payment_system:
+          type: integer
+        outcome_payment_system:
+          type: integer
+        from_currency_id:
+          type: integer
+          nullable: true
+          description: Alias of income_payment_system.
+        to_currency_id:
+          type: integer
+          nullable: true
+          description: Alias of outcome_payment_system.
+        from:
+          type: string
+          nullable: true
+          description: Letter code alias of income_payment_system.
+        to:
+          type: string
+          nullable: true
+          description: Letter code alias of outcome_payment_system.
+        from_code:
+          type: string
+          nullable: true
+        to_code:
+          type: string
+          nullable: true
+        email:
+          type: string
+          format: email
+          nullable: true
+          description: Defaults to API key owner email.
+        income_account:
+          type: string
+          nullable: true
+        outcome_account:
+          type: string
+          nullable: true
+        from_requisite:
+          type: string
+          nullable: true
+          description: Alias of income_account.
+        to_requisite:
+          type: string
+          nullable: true
+          description: Alias of outcome_account.
+        fields_in:
+          type: object
+          additionalProperties: true
+        fields_out:
+          type: object
+          additionalProperties: true
+        direction_fields:
+          type: object
+          additionalProperties: true
+        user_fields:
+          type: object
+          additionalProperties: true
+        extra_out:
+          type: object
+          additionalProperties: true
+        selected_fees:
+          type: object
+          additionalProperties: true
+        selector_fees:
+          type: object
+          additionalProperties: true
+        checkbox_agreements:
+          type: object
+          additionalProperties: true
+        city_id:
+          type: integer
+          nullable: true
+        type_rate:
+          nullable: true
+          description: "0/fixed = fixed rate, 1/floating = floating rate."
+          oneOf:
+            - type: integer
+              enum: [0, 1]
+            - type: string
+              enum: ["0", "1", fixed, floating]
+        promo_code:
+          type: string
+          nullable: true
+        snapshot:
+          $ref: "#/components/schemas/RouteSnapshot"
+          nullable: true
+      oneOf:
+        - required: [route_id]
+        - required: [direction_id]
+        - required: [income_payment_system, outcome_payment_system]
+        - required: [from_currency_id, to_currency_id]
+        - required: [from, to]
+      anyOf:
+        - required: [income_amount]
+        - required: [amount]
+    ExchangeOrderConfirmRequest:
+      type: object
+      required: [type]
+      properties:
+        type:
+          type: string
+          enum: [paid, unpaid]
+        income_code:
+          type: string
+          nullable: true
+        num_tx:
+          type: string
+          nullable: true
+        note_tx:
+          type: string
+          nullable: true
+    OrderActions:
+      type: object
+      properties:
+        status:
+          type: object
+          additionalProperties: true
+        allowed_actions:
+          type: object
+          additionalProperties: true
+        transitions:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              key:
+                type: string
+        requirements:
+          $ref: "#/components/schemas/VerificationRequirements"
+    Order:
+      type: object
+      properties:
+        id:
+          type: integer
+        public_id:
+          type: string
+        tracking_id:
+          type: string
+          nullable: true
+        status:
+          type: object
+          properties:
+            id:
+              type: integer
+            key:
+              type: string
+            name:
+              type: string
+            is_final:
+              type: boolean
+            is_payment_flow:
+              type: boolean
+            is_problem:
+              type: boolean
+        amounts:
+          type: object
+          properties:
+            give:
+              type: string
+            receive:
+              type: string
+            rate:
+              type: string
+              nullable: true
+        currencies:
+          type: object
+          properties:
+            from:
+              $ref: "#/components/schemas/CurrencySummary"
+            to:
+              $ref: "#/components/schemas/CurrencySummary"
+        direction:
+          type: object
+        customer:
+          type: object
+        payment:
+          type: object
+        flags:
+          type: object
+        timestamps:
+          type: object
+    UploadIntentCreateRequest:
+      type: object
+      required: [purpose]
+      properties:
+        purpose:
+          type: string
+          enum: [identity_verification, card_verification, order_attachment, sandbox]
+        resource_type:
+          type: string
+          nullable: true
+        resource_id:
+          type: string
+          nullable: true
+        field_key:
+          type: string
+          nullable: true
+        allowed_extensions:
+          type: array
+          nullable: true
+          items:
+            type: string
+        max_bytes:
+          type: integer
+          nullable: true
+    UploadIntent:
+      type: object
+      properties:
+        id:
+          type: integer
+        uuid:
+          type: string
+          format: uuid
+        purpose:
+          type: string
+        resource_type:
+          type: string
+          nullable: true
+        resource_id:
+          type: string
+          nullable: true
+        field_key:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [pending, committed, consumed, expired]
+        allowed_extensions:
+          type: array
+          items:
+            type: string
+        max_bytes:
+          type: integer
+        file:
+          type: object
+          additionalProperties: true
+        expires_at:
+          type: string
+          format: date-time
+          nullable: true
+        committed_at:
+          type: string
+          format: date-time
+          nullable: true
+        consumed_at:
+          type: string
+          format: date-time
+          nullable: true
+    VerificationStatus:
+      type: object
+      properties:
+        id:
+          type: integer
+          nullable: true
+        key:
+          type: string
+          enum: [not_submitted, pending, approved, rejected]
+        label:
+          type: string
+        is_final_approved:
+          type: boolean
+        verification_id:
+          type: integer
+          nullable: true
+    VerificationRequirements:
+      type: object
+      properties:
+        route_id:
+          type: integer
+          nullable: true
+        order:
+          type: object
+          nullable: true
+          additionalProperties: true
+        identity:
+          type: object
+          properties:
+            required:
+              type: boolean
+            mode:
+              type: string
+              nullable: true
+            description:
+              type: string
+              nullable: true
+            current:
+              $ref: "#/components/schemas/VerificationStatus"
+            create_endpoint:
+              type: string
+        card:
+          type: object
+          properties:
+            required:
+              type: boolean
+            mode:
+              type: integer
+              nullable: true
+            description:
+              type: string
+              nullable: true
+            settings:
+              type: object
+              nullable: true
+              additionalProperties: true
+            current:
+              $ref: "#/components/schemas/VerificationStatus"
+            create_endpoint:
+              type: string
+        files:
+          type: object
+          nullable: true
+          additionalProperties: true
+    IdentityVerificationCreateRequest:
+      type: object
+      required: [file_intents]
+      properties:
+        full_name:
+          type: string
+          nullable: true
+        file_intents:
+          type: array
+          minItems: 1
+          maxItems: 2
+          items:
+            type: string
+            format: uuid
+    CardVerificationCreateRequest:
+      type: object
+      required: [card_number, file_intent]
+      properties:
+        order:
+          type: string
+          nullable: true
+        order_id:
+          type: string
+          nullable: true
+        currency_id:
+          type: integer
+          nullable: true
+        card_number:
+          type: string
+        name:
+          type: string
+          nullable: true
+        file_intent:
+          type: string
+          format: uuid
+    OrderVerificationSubmitRequest:
+      type: object
+      properties:
+        identity:
+          $ref: "#/components/schemas/IdentityVerificationCreateRequest"
+          nullable: true
+        card:
+          $ref: "#/components/schemas/CardVerificationCreateRequest"
+          nullable: true
+    ReviewCreateRequest:
+      type: object
+      required: [name, text]
+      properties:
+        name:
+          type: string
+          maxLength: 40
+        text:
+          type: string
+          maxLength: 200
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        rate_speed:
+          type: integer
+          minimum: 1
+          maximum: 5
+        order_id:
+          type: string
+          nullable: true
+        tracking_id:
+          type: string
+          nullable: true
+      oneOf:
+        - required: [order_id]
+        - required: [tracking_id]
+    Review:
+      type: object
+      properties:
+        id:
+          type: integer
+        status:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+              enum: [published, moderation]
+            is_published:
+              type: boolean
+        name:
+          type: string
+          nullable: true
+        text:
+          type: string
+          nullable: true
+        rating:
+          type: integer
+        order:
+          type: object
+          nullable: true
+        timestamps:
+          type: object
+    ContractVersion:
+      type: object
+      required: [key, version, title, status, stability, description, headers, schemas]
+      properties:
+        key:
+          type: string
+          example: operation-contract
+        version:
+          type: string
+          example: operation-contract-v1
+        title:
+          type: string
+        status:
+          type: string
+          example: current
+        stability:
+          type: string
+          example: stable
+        description:
+          type: string
+        headers:
+          type: array
+          items:
+            type: string
+        schemas:
+          type: array
+          items:
+            type: string
+    SchemaRegistryItem:
+      type: object
+      required: [key, title, version, contract, content_type, endpoint]
+      properties:
+        key:
+          type: string
+          example: success-envelope.v1
+        title:
+          type: string
+        version:
+          type: string
+        contract:
+          type: string
+        content_type:
+          type: string
+          example: application/schema+json
+        endpoint:
+          type: string
+    ClientApiHealth:
+      type: object
+      required: [version, status, client, token, quota, security, webhooks, contracts, time]
+      properties:
+        version:
+          type: string
+          example: client-health-v1
+        status:
+          type: string
+          enum: [ok, warning, blocked]
+        client:
+          type: object
+          additionalProperties: true
+        token:
+          type: object
+          nullable: true
+          additionalProperties: true
+        security:
+          type: object
+          nullable: true
+          additionalProperties: true
+        quota:
+          type: object
+          nullable: true
+          additionalProperties: true
+        webhooks:
+          type: object
+          additionalProperties: true
+        contracts:
+          type: object
+          additionalProperties: true
+        time:
+          type: string
+          format: date-time
+    RouteCapabilities:
+      type: object
+      required: [version, route_id, status, actions, amounts, rate, fields, endpoints, snapshot]
+      properties:
+        version:
+          type: string
+          example: route-capabilities-v1
+        route_id:
+          type: integer
+        status:
+          type: object
+          additionalProperties: true
+        actions:
+          type: object
+          additionalProperties: true
+        amounts:
+          type: object
+          additionalProperties: true
+        rate:
+          type: object
+          additionalProperties: true
+        fields:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        dynamic_fields:
+          type: object
+          additionalProperties: true
+        requirements:
+          $ref: "#/components/schemas/VerificationRequirements"
+        files:
+          type: object
+          additionalProperties: true
+        endpoints:
+          type: object
+          additionalProperties:
+            type: string
+        snapshot:
+          $ref: "#/components/schemas/RouteSnapshot"
+        operation_contract:
+          $ref: "#/components/schemas/OperationContract"
+    WebhookEvent:
+      type: object
+      required: [id, type, status, payload, deliveries_count]
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+          example: order.created
+        resource:
+          type: object
+          additionalProperties: true
+        status:
+          type: string
+        request_id:
+          type: string
+          nullable: true
+        correlation_id:
+          type: string
+          nullable: true
+        idempotency_key:
+          type: string
+          nullable: true
+        payload:
+          type: object
+          additionalProperties: true
+        deliveries_count:
+          type: integer
+        deliveries:
+          type: array
+          items:
+            $ref: "#/components/schemas/WebhookDelivery"
+        created_at:
+          type: string
+          format: date-time
+          nullable: true
+    WebhookDelivery:
+      type: object
+      required: [id, status, attempt, endpoint, event]
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [queued, sending, succeeded, failed]
+        attempt:
+          type: integer
+        endpoint:
+          type: object
+          nullable: true
+          additionalProperties: true
+        event:
+          type: object
+          nullable: true
+          additionalProperties: true
+        request:
+          type: object
+          additionalProperties: true
+        response:
+          type: object
+          additionalProperties: true
+        error:
+          type: object
+          additionalProperties: true
+        next_retry_at:
+          type: string
+          format: date-time
+          nullable: true
+        delivered_at:
+          type: string
+          format: date-time
+          nullable: true
+    WebhookEventCatalogItem:
+      type: object
+      required: [event, title]
+      properties:
+        event:
+          type: string
+          example: order.status_changed
+        title:
+          type: string
+    WebhookEndpoint:
+      type: object
+      required: [id, name, url, events, status, signing_algorithm]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        url:
+          type: string
+          format: uri
+        events:
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+          enum: [active, paused, disabled]
+        signing_algorithm:
+          type: string
+          example: hmac-sha256-v1
+        secret_fingerprint:
+          type: string
+          nullable: true
+        failure_count:
+          type: integer
+        last_delivery_at:
+          type: string
+          format: date-time
+          nullable: true
+        last_success_at:
+          type: string
+          format: date-time
+          nullable: true
+        last_failure_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          nullable: true
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+    WebhookEndpointCreate:
+      type: object
+      required: [name, url, events]
+      properties:
+        name:
+          type: string
+          maxLength: 80
+        url:
+          type: string
+          format: uri
+          maxLength: 500
+        events:
+          type: array
+          minItems: 1
+          items:
+            type: string
+    WebhookEndpointUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 80
+        url:
+          type: string
+          format: uri
+          maxLength: 500
+        events:
+          type: array
+          minItems: 1
+          items:
+            type: string
+        status:
+          type: string
+          enum: [active, paused, disabled]
+    WebhookTestRequest:
+      type: object
+      properties:
+        endpoint_id:
+          type: string
+          format: uuid
+          nullable: true
+        event_type:
+          type: string
+          example: api.test
+        payload:
+          type: object
+          additionalProperties: true
+    WebhookTestResult:
+      type: object
+      properties:
+        event:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            type:
+              type: string
+            status:
+              type: string
+            request_id:
+              type: string
+            correlation_id:
+              type: string
+        deliveries:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+              status:
+                type: string
+              endpoint_id:
+                type: string
+                format: uuid
