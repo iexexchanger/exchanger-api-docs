@@ -48,12 +48,6 @@ curl -sS https://example.com/api/v3/private/client \
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
-Alias:
-
-```text
-GET /private/account
-```
-
 ## Usage
 
 ```bash

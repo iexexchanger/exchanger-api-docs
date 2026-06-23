@@ -3,6 +3,7 @@
 ## Начало работы
 
 * [Что такое iEXExchanger API](README.md)
+* [Все возможности API](start/api-capabilities.md)
 * [Быстрый старт: первая заявка](start/quick-start.md)
 * [Кто что делает: администратор, клиент, разработчик](start/roles-and-responsibilities.md)
 * [Чеклист перед запуском](start/integration-checklist.md)
@@ -44,12 +45,18 @@
 ## API Reference
 
 * [Как читать API Reference](reference/openapi-reference.md)
-* [System и Client](api-reference/system-client.md)
+* [System](api-reference/system.md)
+* [Security](api-reference/security.md)
+* [Client и Usage](api-reference/client-usage.md)
+* [Platform contracts и schemas](api-reference/platform.md)
 * [Exchange](api-reference/exchange.md)
 * [Orders](api-reference/orders.md)
-* [Files и Verifications](api-reference/files-verifications.md)
+* [Files](api-reference/files.md)
+* [Verifications](api-reference/verifications.md)
 * [Webhooks](api-reference/webhooks.md)
-* [Partner, Reviews и Sandbox](api-reference/partner-reviews-sandbox.md)
+* [Partner](api-reference/partner.md)
+* [Reviews](api-reference/reviews.md)
+* [Sandbox](api-reference/sandbox.md)
 
 ## Дополнительные возможности
 

@@ -1,18 +1,6 @@
-# System и Client
+# Client и Usage
 
-Endpoints для проверки доступности API, состояния ключа, профиля клиента и usage.
-
-## Публичный ping
-
-{% openapi src="https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml" path="/ping" method="get" %}
-[openapi.yaml](https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml)
-{% endopenapi %}
-
-## Приватный ping
-
-{% openapi src="https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml" path="/private/ping" method="get" %}
-[openapi.yaml](https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml)
-{% endopenapi %}
+Endpoints для проверки ключа, профиля клиента и расхода API.
 
 ## Проверка клиента и ключа
 
@@ -26,8 +14,9 @@ Endpoints для проверки доступности API, состояния
 [openapi.yaml](https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml)
 {% endopenapi %}
 
-## Usage
+## Usage, квоты и billing summary
 
 {% openapi src="https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml" path="/private/usage" method="get" %}
 [openapi.yaml](https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml)
 {% endopenapi %}
+

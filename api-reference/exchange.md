@@ -4,6 +4,12 @@
 
 Здесь собраны endpoints для формы обмена: платежные системы, направления, расчет, preflight, создание заявки и работа со статусом.
 
+Обычно интеграция идет по цепочке:
+
+```text
+payment-systems -> routes -> capabilities -> quote -> preflight -> create order -> status/actions
+```
+
 ## Платежные системы
 
 {% openapi src="https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml" path="/private/exchange/payment-systems" method="get" %}
@@ -18,13 +24,41 @@
 
 ## Детали направления
 
+### Получить направление по ID
+
+{% openapi src="https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml" path="/private/exchange/routes/{route}" method="get" %}
+[openapi.yaml](https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml)
+{% endopenapi %}
+
+### Детали направления по фильтрам
+
+{% openapi src="https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml" path="/private/exchange/routes/details" method="get" %}
+[openapi.yaml](https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml)
+{% endopenapi %}
+
+### Детали направления по ID
+
 {% openapi src="https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml" path="/private/exchange/routes/{route}/details" method="get" %}
+[openapi.yaml](https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml)
+{% endopenapi %}
+
+### Детали направления по паре валют
+
+{% openapi src="https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml" path="/private/exchange/routes/{from}/{to}/details" method="get" %}
 [openapi.yaml](https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml)
 {% endopenapi %}
 
 ## Возможности направления
 
+### Возможности направления по ID
+
 {% openapi src="https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml" path="/private/exchange/routes/{route}/capabilities" method="get" %}
+[openapi.yaml](https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml)
+{% endopenapi %}
+
+### Возможности направления по паре валют
+
+{% openapi src="https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml" path="/private/exchange/routes/{from}/{to}/capabilities" method="get" %}
 [openapi.yaml](https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml)
 {% endopenapi %}
 
@@ -73,5 +107,11 @@
 ## Отменить заявку
 
 {% openapi src="https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml" path="/private/exchange/orders/{order}/cancel" method="post" %}
+[openapi.yaml](https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml)
+{% endopenapi %}
+
+## Отменить заявку через DELETE
+
+{% openapi src="https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml" path="/private/exchange/orders/{order}" method="delete" %}
 [openapi.yaml](https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml)
 {% endopenapi %}

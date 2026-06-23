@@ -5,7 +5,7 @@
 ## Общий сценарий
 
 ```text
-create upload intent -> upload file -> commit -> submit verification
+create upload intent -> commit file -> submit verification
 ```
 
 ## Создать upload intent
@@ -17,9 +17,8 @@ curl -sS https://example.com/api/v3/private/files/upload-intents \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -d '{
     "purpose": "identity_verification",
-    "filename": "passport.jpg",
-    "content_type": "image/jpeg",
-    "size": 245901
+    "allowed_extensions": ["jpg", "jpeg", "png", "pdf"],
+    "max_bytes": 5242880
   }'
 ```
 
@@ -35,7 +34,7 @@ curl -sS https://example.com/api/v3/private/files/upload-intents \
 ```bash
 FILE_SHA=$(sha256sum passport.jpg | awk '{print $1}')
 
-curl -sS https://example.com/api/v3/private/files/upload-intents/UPLOAD_INTENT_ID/commit \
+curl -sS https://example.com/api/v3/private/files/upload-intents/UPLOAD_INTENT_UUID/commit \
   -H "Accept: application/json" \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "X-Api-File-Sha256: $FILE_SHA" \
@@ -60,10 +59,8 @@ curl -sS https://example.com/api/v3/private/verifications/identity \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -d '{
-    "upload_intent_id": "UPLOAD_INTENT_ID",
-    "document_type": "passport",
-    "first_name": "John",
-    "last_name": "Smith"
+    "full_name": "John Smith",
+    "file_intents": ["UPLOAD_INTENT_UUID"]
   }'
 ```
 
@@ -75,9 +72,11 @@ curl -sS https://example.com/api/v3/private/verifications/cards \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -d '{
-    "upload_intent_id": "UPLOAD_INTENT_ID",
-    "card_mask": "411111******1111",
-    "cardholder_name": "JOHN SMITH"
+    "order_id": "TRK8K2LQ",
+    "currency_id": 1,
+    "card_number": "4111111111111111",
+    "name": "JOHN SMITH",
+    "file_intent": "UPLOAD_INTENT_UUID"
   }'
 ```
 
@@ -99,4 +98,7 @@ curl -sS https://example.com/api/v3/private/verifications/cards \
 
 ## API Reference
 
-Точные request body и responses для файлов и проверок доступны на странице [Files и Verifications API Reference](../api-reference/files-verifications.md).
+Точные request body и responses доступны отдельно:
+
+- [Files API Reference](../api-reference/files.md)
+- [Verifications API Reference](../api-reference/verifications.md)

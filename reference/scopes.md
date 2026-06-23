@@ -53,7 +53,7 @@ Scopes ограничивают, что API-ключ может делать. В
 | `webhooks:deliveries:read` | Читать события и доставки webhook. |
 | `webhooks:deliveries:retry` | Повторно отправлять webhook delivery. |
 
-## Партнерка и отзывы
+## Партнерка
 
 | Scope | Что разрешает |
 | --- | --- |
@@ -62,6 +62,11 @@ Scopes ограничивают, что API-ключ может делать. В
 | `partner:exchanges:read` | Читать партнерские обмены. |
 | `partner:payouts:read` | Читать партнерские выплаты. |
 | `partner:statistics:read` | Читать партнерскую статистику. |
+
+## Отзывы
+
+| Scope | Что разрешает |
+| --- | --- |
 | `reviews:read` | Читать отзывы. |
 | `reviews:write` | Создавать отзыв. |
 
@@ -80,4 +85,3 @@ Scopes ограничивают, что API-ключ может делать. В
 | Форма обмена с подтверждением оплаты | Scopes формы обмена плюс `exchange:orders:confirm`, `exchange:orders:actions:read` |
 | Управление webhooks | `webhooks:read`, `webhooks:write`, `webhooks:deliveries:read` |
 | Партнерский кабинет | `partner:read`, `partner:statistics:read`, `partner:referrals:read`, `partner:exchanges:read`, `partner:payouts:read` |
-

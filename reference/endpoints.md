@@ -24,12 +24,19 @@ https://example.com/api/v3
 | Метод | Путь | Нужный scope |
 | --- | --- | --- |
 | `GET` | `/private/ping` | Любой активный ключ |
-| `GET` | `/private/health` | Любой активный ключ |
 | `GET` | `/private/health/client` | `client:health:read` |
 | `GET` | `/private/client` | `public-api:client:read` |
-| `GET` | `/private/account` | `public-api:client:read` |
 | `GET` | `/private/usage` | `usage:read` |
 | `GET` | `/private/scopes` | `scopes:read` |
+
+## Platform contracts и schemas
+
+| Метод | Путь | Нужный scope |
+| --- | --- | --- |
+| `GET` | `/private/contracts` | `contracts:read` |
+| `GET` | `/private/contracts/{contract}` | `contracts:read` |
+| `GET` | `/private/schemas` | `schemas:read` |
+| `GET` | `/private/schemas/{schema}` | `schemas:read` |
 
 ## Обмен
 
@@ -87,18 +94,33 @@ https://example.com/api/v3
 | `DELETE` | `/private/webhooks/{webhook}` | `webhooks:write` |
 | `POST` | `/private/webhooks/{webhook}/rotate-secret` | `webhooks:write` |
 
-## Остальные ресурсы
+## Orders
 
 | Метод | Путь | Нужный scope |
 | --- | --- | --- |
 | `GET` | `/private/orders/statuses` | `orders:statuses:read` |
 | `GET` | `/private/orders` | `orders:read` |
 | `GET` | `/private/orders/{order}` | `orders:detail:read` |
+
+## Partner
+
+| Метод | Путь | Нужный scope |
+| --- | --- | --- |
 | `GET` | `/private/partner` | `partner:read` |
 | `GET` | `/private/partner/statistics` | `partner:statistics:read` |
 | `GET` | `/private/partner/referrals` | `partner:referrals:read` |
 | `GET` | `/private/partner/exchanges` | `partner:exchanges:read` |
 | `GET` | `/private/partner/payouts` | `partner:payouts:read` |
+
+## Reviews
+
+| Метод | Путь | Нужный scope |
+| --- | --- | --- |
 | `GET` | `/private/reviews` | `reviews:read` |
 | `POST` | `/private/reviews` | `reviews:write` |
+
+## Sandbox
+
+| Метод | Путь | Нужный scope |
+| --- | --- | --- |
 | `POST` | `/private/sandbox/exchange/orders/simulate` | `sandbox:run` |
