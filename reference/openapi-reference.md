@@ -1,147 +1,59 @@
-# Как подключен OpenAPI
+# Как читать API Reference
 
-OpenAPI specification описывает endpoints, параметры, body, headers и ответы API в машинно-читаемом формате. В этой документации OpenAPI используется двумя способами:
-
-- как файл `openapi/openapi.yaml` в GitHub-репозитории;
-- как GitBook OpenAPI blocks на страницах раздела [Интерактивный API Reference](../api-reference/exchange.md).
-
-GitBook превращает OpenAPI operations в интерактивные blocks: разработчик видит method, path, параметры, body, responses и может тестировать endpoint прямо на странице.
-
-## Где находится OpenAPI
-
-В репозитории документации:
+API Reference построен из файла:
 
 ```text
 openapi/openapi.yaml
 ```
 
-На установленном обменнике:
+Это точный контракт API: endpoints, параметры, request body, headers, responses, security и схемы данных.
+
+## Когда открывать API Reference
+
+Открывайте API Reference, когда нужно узнать:
+
+- какой HTTP method использовать;
+- какой path у endpoint;
+- какие query parameters доступны;
+- какие поля передавать в JSON body;
+- какие headers нужны;
+- какой scope требуется ключу;
+- какие ответы может вернуть API.
+
+## Как пользоваться вместе с руководствами
+
+Руководства показывают порядок действий. API Reference показывает точные детали запроса.
+
+Пример:
+
+1. В guide [Расчет, preflight и создание заявки](../exchange/quotes-preflight-orders.md) описан сценарий создания заявки.
+2. На странице [Exchange API Reference](../api-reference/exchange.md) можно открыть точный endpoint `POST /private/exchange/orders`.
+3. В [Scopes и права ключа](scopes.md) можно проверить, какие права нужны ключу.
+
+## Группы API Reference
+
+| Страница | Что смотреть |
+| --- | --- |
+| [System и Client](../api-reference/system-client.md) | Проверка API, проверка ключа, профиль клиента, usage. |
+| [Exchange](../api-reference/exchange.md) | Платежные системы, направления, quote, preflight, создание заявки, статус. |
+| [Orders](../api-reference/orders.md) | Список заявок и справочник статусов. |
+| [Files и Verifications](../api-reference/files-verifications.md) | Загрузка файлов, identity/card verification. |
+| [Webhooks](../api-reference/webhooks.md) | Webhook endpoints, события, доставки, retry. |
+| [Partner, Reviews и Sandbox](../api-reference/partner-reviews-sandbox.md) | Партнерка, отзывы и тестовая симуляция заявки. |
+
+## OpenAPI-файл
+
+Файл можно использовать в инструментах разработчика:
+
+- импортировать в Postman;
+- импортировать в Insomnia;
+- открыть в Swagger UI;
+- использовать для генерации собственного клиента.
+
+Live OpenAPI на установленном обменнике:
 
 ```text
 https://{your-domain}/api/v3/openapi.yaml
 ```
 
-Пример:
-
-```text
-https://example.com/api/v3/openapi.yaml
-```
-
-Raw URL текущей GitHub-версии:
-
-```text
-https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml
-```
-
-## Что уже сделано в этой документации
-
-В `SUMMARY.md` добавлен раздел:
-
-```text
-Интерактивный API Reference
-```
-
-В нем находятся страницы с GitBook OpenAPI blocks:
-
-| Страница | Что показывает |
-| --- | --- |
-| `api-reference/system-client.md` | Ping, health, client, usage. |
-| `api-reference/exchange.md` | Направления, quote, preflight, создание заявки, статус, confirm/cancel. |
-| `api-reference/orders.md` | Справочник статусов, список заявок, одна заявка. |
-| `api-reference/files-verifications.md` | Upload intents, файлы, identity/card verification. |
-| `api-reference/webhooks.md` | Webhook endpoints, test, events, deliveries, retry. |
-| `api-reference/partner-reviews-sandbox.md` | Partner, reviews, sandbox. |
-
-## Пример OpenAPI block
-
-В Markdown используется GitBook-синтаксис:
-
-```md
-{% openapi src="https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml" path="/private/exchange/orders" method="post" %}
-[openapi.yaml](https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml)
-{% endopenapi %}
-```
-
-GitBook должен отрендерить этот блок как интерактивную карточку endpoint-а.
-
-## Как добавить spec в GitBook UI
-
-Если нужно подключить OpenAPI на уровне GitBook organization:
-
-1. Откройте в GitBook раздел `OpenAPI`.
-2. Нажмите `Add specification`.
-3. Укажите имя, например `iexexchanger-api`.
-4. Выберите источник:
-   - upload файла `openapi/openapi.yaml`;
-   - URL `https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml`;
-   - live URL `https://{your-domain}/api/v3/openapi.yaml`.
-5. После добавления spec вставьте `OpenAPI Reference` в table of contents.
-
-Если spec подключен по URL, GitBook может проверять обновления автоматически. Для live URL на домене обменника нужно разрешить CORS `GET` с домена опубликованной документации.
-
-## CLI-вариант
-
-Официальный GitBook CLI позволяет публиковать или обновлять spec командой:
-
-```bash
-gitbook openapi publish \
-  --spec iexexchanger-api \
-  --organization ORGANIZATION_ID \
-  https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml
-```
-
-Этот вариант удобен для CI/CD: после обновления `openapi/openapi.yaml` pipeline публикует новую версию spec в GitBook.
-
-## Как использовать через GitBook API
-
-GitBook API также позволяет управлять OpenAPI specifications программно. Это полезно, если вы хотите обновлять API Reference из CI/CD.
-
-Создание OpenAPI spec из URL:
-
-```bash
-curl -sS https://api.gitbook.com/v1/orgs/ORGANIZATION_ID/openapi \
-  -H "Authorization: Bearer GITBOOK_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "slug": "iexexchanger-api",
-    "source": {
-      "url": "https://example.com/api/v3/openapi.yaml"
-    }
-  }'
-```
-
-Обновление существующей spec:
-
-```bash
-curl -sS https://api.gitbook.com/v1/orgs/ORGANIZATION_ID/openapi/iexexchanger-api \
-  -X PUT \
-  -H "Authorization: Bearer GITBOOK_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "source": {
-      "url": "https://example.com/api/v3/openapi.yaml"
-    }
-  }'
-```
-
-Для обычного клиента это не требуется. Это инструмент для тех, кто поддерживает GitBook-документацию.
-
-## SDK-файлы
-
-В репозитории есть готовые helper-файлы:
-
-| Файл | Для чего нужен |
-| --- | --- |
-| `sdk/php/PublicApiSigner.php` | Подписывать HMAC-запросы в PHP. |
-| `sdk/typescript/PublicApiClient.ts` | Делать запросы к API из TypeScript/Node.js. |
-
-Готовые примеры:
-
-- [PHP: подпись HMAC и запрос](../examples/php-signed-request.md)
-- [TypeScript: SDK-клиент](../examples/typescript-client.md)
-
-## Как разделять Markdown и API Reference
-
-Markdown-страницы объясняют сценарии: как получить ключ, как создать заявку, как подключить webhook.
-
-OpenAPI Reference нужна как точный справочник endpoint-ов: параметры, body, responses, security, schemas.
+Если вы работаете с конкретным обменником, используйте OpenAPI с его домена, чтобы видеть актуальный контракт именно этой установки.

@@ -23,7 +23,7 @@ curl -sS https://example.com/api/v3/private/files/upload-intents \
   }'
 ```
 
-| Purpose | Для чего |
+| Тип файла | Для чего |
 | --- | --- |
 | `identity_verification` | Документ для проверки личности. |
 | `card_verification` | Проверка банковской карты. |
@@ -97,6 +97,6 @@ curl -sS https://example.com/api/v3/private/verifications/cards \
 - Не храните документы дольше, чем нужно.
 - Используйте webhooks для изменения статуса проверки.
 
-## OpenAPI Reference
+## API Reference
 
 Точные request body и responses для файлов и проверок доступны на странице [Files и Verifications API Reference](../api-reference/files-verifications.md).

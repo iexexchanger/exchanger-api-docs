@@ -51,7 +51,7 @@ API возвращает HTTP status и JSON body с `error.code`.
 | `rate_limit_exceeded` | Частотный лимит исчерпан. | Ждать `Retry-After`. |
 | `quota_exceeded` | Дневная или месячная quota исчерпана. | Повысить quota или снизить нагрузку. |
 
-## Что передавать в support
+## Что передавать в поддержку
 
 Передайте:
 
@@ -62,4 +62,3 @@ API возвращает HTTP status и JSON body с `error.code`.
 - HTTP status;
 - `error.code`;
 - название API-ключа, но не сам token.
-

@@ -70,4 +70,4 @@ curl -sS https://example.com/api/v3/private/exchange/routes/25/capabilities \
 | `/details` | Нужно показать описание направления, курс, лимиты, условия. |
 | `/capabilities` | Нужно построить форму и понять, можно ли создать заявку. |
 
-Для формы заявки обычно полезны оба endpoint-а.
+Для формы заявки обычно нужны оба endpoint.

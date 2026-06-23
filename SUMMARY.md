@@ -11,7 +11,7 @@
 
 * [Как администратору включить API](setup/admin-enable-api.md)
 * [Как клиенту получить API-ключ](setup/client-get-api-key.md)
-* [API-ключи, HMAC secret и ротация](setup/api-keys.md)
+* [API-ключи, HMAC-секрет и ротация](setup/api-keys.md)
 * [Безопасные production-настройки](setup/production-settings.md)
 
 ## Как устроен API
@@ -41,9 +41,9 @@
 * [Как проверить подпись webhook](webhooks/delivery-signatures.md)
 * [История доставок и повторная отправка](webhooks/delivery-center.md)
 
-## Интерактивный API Reference
+## API Reference
 
-* [Как подключен OpenAPI](reference/openapi-reference.md)
+* [Как читать API Reference](reference/openapi-reference.md)
 * [System и Client](api-reference/system-client.md)
 * [Exchange](api-reference/exchange.md)
 * [Orders](api-reference/orders.md)
@@ -64,7 +64,7 @@
 * [cURL: полный путь до заявки](examples/curl-create-order.md)
 * [PHP: подпись HMAC и запрос](examples/php-signed-request.md)
 * [TypeScript: SDK-клиент](examples/typescript-client.md)
-* [Webhook receiver](examples/webhook-receiver.md)
+* [Обработчик webhook](examples/webhook-receiver.md)
 
 ## Справочник
 

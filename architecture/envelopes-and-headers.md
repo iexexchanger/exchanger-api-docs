@@ -24,7 +24,7 @@
 | `state` | `0` значит успех. |
 | `message` | Короткое сообщение. |
 | `result` | Основные данные ответа. |
-| `meta.request_id` | ID запроса для support. |
+| `meta.request_id` | ID запроса для обращения в поддержку. |
 | `meta.correlation_id` | ID цепочки связанных запросов. |
 
 ## Ответ с ошибкой
@@ -82,7 +82,7 @@ Idempotency-Key: create-order-user-42-001
 
 | Header | Что означает |
 | --- | --- |
-| `X-Request-Id` | ID запроса для support. |
+| `X-Request-Id` | ID запроса для обращения в поддержку. |
 | `X-Correlation-Id` | ID цепочки запросов. |
 | `X-RateLimit-Limit` | Лимит запросов в текущем окне. |
 | `X-RateLimit-Remaining` | Сколько осталось запросов. |

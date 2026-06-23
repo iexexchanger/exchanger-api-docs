@@ -1,78 +1,77 @@
 # Exchange
 
-Интерактивные OpenAPI blocks для основного сценария обмена.
-
 Перед использованием endpoints прочитайте guide: [Общий сценарий обмена](../exchange/overview.md).
 
-## Payment systems
+Здесь собраны endpoints для формы обмена: платежные системы, направления, расчет, preflight, создание заявки и работа со статусом.
+
+## Платежные системы
 
 {% openapi src="https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml" path="/private/exchange/payment-systems" method="get" %}
 [openapi.yaml](https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml)
 {% endopenapi %}
 
-## Routes
+## Направления
 
 {% openapi src="https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml" path="/private/exchange/routes" method="get" %}
 [openapi.yaml](https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml)
 {% endopenapi %}
 
-## Route details
+## Детали направления
 
 {% openapi src="https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml" path="/private/exchange/routes/{route}/details" method="get" %}
 [openapi.yaml](https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml)
 {% endopenapi %}
 
-## Route capabilities
+## Возможности направления
 
 {% openapi src="https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml" path="/private/exchange/routes/{route}/capabilities" method="get" %}
 [openapi.yaml](https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml)
 {% endopenapi %}
 
-## Quote
+## Расчет quote
 
 {% openapi src="https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml" path="/private/exchange/quotes" method="post" %}
 [openapi.yaml](https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml)
 {% endopenapi %}
 
-## Preflight
+## Проверка preflight
 
 {% openapi src="https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml" path="/private/exchange/orders/preflight" method="post" %}
 [openapi.yaml](https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml)
 {% endopenapi %}
 
-## Create order
+## Создать заявку
 
 {% openapi src="https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml" path="/private/exchange/orders" method="post" %}
 [openapi.yaml](https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml)
 {% endopenapi %}
 
-## Get exchange order
+## Получить заявку обмена
 
 {% openapi src="https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml" path="/private/exchange/orders/{order}" method="get" %}
 [openapi.yaml](https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml)
 {% endopenapi %}
 
-## Order status
+## Статус заявки
 
 {% openapi src="https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml" path="/private/exchange/orders/{order}/status" method="get" %}
 [openapi.yaml](https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml)
 {% endopenapi %}
 
-## Order actions
+## Действия по заявке
 
 {% openapi src="https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml" path="/private/exchange/orders/{order}/actions" method="get" %}
 [openapi.yaml](https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml)
 {% endopenapi %}
 
-## Confirm payment
+## Подтвердить оплату
 
 {% openapi src="https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml" path="/private/exchange/orders/{order}/confirm" method="post" %}
 [openapi.yaml](https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml)
 {% endopenapi %}
 
-## Cancel order
+## Отменить заявку
 
 {% openapi src="https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml" path="/private/exchange/orders/{order}/cancel" method="post" %}
 [openapi.yaml](https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml)
 {% endopenapi %}
-

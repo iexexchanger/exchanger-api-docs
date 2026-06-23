@@ -9,8 +9,8 @@
 | Что | Где получить |
 | --- | --- |
 | Домен обменника | У владельца обменника или администратора. |
-| Bearer token | Клиент создает в личном кабинете. |
-| HMAC secret | Показывается при создании ключа, если HMAC включен. |
+| Bearer-токен | Клиент создает в личном кабинете. |
+| HMAC-секрет | Показывается при создании ключа, если HMAC включен. |
 | Scopes | Настраивает администратор. |
 
 ## 1. Проверить, что API отвечает
@@ -71,7 +71,7 @@ curl -sS https://example.com/api/v3/private/health/client \
 }
 ```
 
-Если ответ `401`, проверьте token. Если `403`, проверьте, включил ли администратор API клиенту, scopes и IP allow-list.
+Если ответ `401`, проверьте токен. Если `403`, проверьте, включил ли администратор API клиенту, scopes и белый список IP.
 
 ## 3. Получить валюты и платежные системы
 
@@ -263,9 +263,9 @@ curl -sS https://example.com/api/v3/private/exchange/orders/TRK8K2LQ/status \
 
 Для production лучше получать статусы через webhooks, а status endpoint использовать как fallback.
 
-## Интерактивные endpoint cards
+## API Reference
 
-Точные параметры и схемы этих запросов доступны в OpenAPI-разделе:
+Точные параметры и схемы этих запросов доступны в API Reference:
 
 - [Exchange API Reference](../api-reference/exchange.md)
 - [Orders API Reference](../api-reference/orders.md)

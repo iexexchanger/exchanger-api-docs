@@ -11,7 +11,7 @@ https://example.com/api/v3
 | Метод | Путь | Для чего |
 | --- | --- | --- |
 | `GET` | `/ping` | Проверка доступности API. |
-| `GET` | `/openapi.yaml` | OpenAPI specification. |
+| `GET` | `/openapi.yaml` | OpenAPI-файл. |
 | `GET` | `/public/contracts` | Публичный список контрактов. |
 | `GET` | `/public/contracts/{contract}` | Один публичный контракт. |
 | `GET` | `/public/schemas` | Публичный список схем. |
@@ -102,4 +102,3 @@ https://example.com/api/v3
 | `GET` | `/private/reviews` | `reviews:read` |
 | `POST` | `/private/reviews` | `reviews:write` |
 | `POST` | `/private/sandbox/exchange/orders/simulate` | `sandbox:run` |
-

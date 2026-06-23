@@ -1,52 +1,51 @@
 # Webhooks
 
-Интерактивные blocks для управления webhooks и доставками.
+Endpoints для настройки webhook URL, проверки доставки событий и повторной отправки failed deliveries.
 
-## List webhooks
+## Список webhooks
 
 {% openapi src="https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml" path="/private/webhooks" method="get" %}
 [openapi.yaml](https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml)
 {% endopenapi %}
 
-## Create webhook
+## Создать webhook
 
 {% openapi src="https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml" path="/private/webhooks" method="post" %}
 [openapi.yaml](https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml)
 {% endopenapi %}
 
-## Test webhook
+## Проверить webhook
 
 {% openapi src="https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml" path="/private/webhooks/test" method="post" %}
 [openapi.yaml](https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml)
 {% endopenapi %}
 
-## List webhook events
+## Список webhook events
 
 {% openapi src="https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml" path="/private/webhooks/events" method="get" %}
 [openapi.yaml](https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml)
 {% endopenapi %}
 
-## List deliveries
+## Список доставок
 
 {% openapi src="https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml" path="/private/webhooks/deliveries" method="get" %}
 [openapi.yaml](https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml)
 {% endopenapi %}
 
-## Retry delivery
+## Повторить доставку
 
 {% openapi src="https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml" path="/private/webhooks/deliveries/{delivery}/retry" method="post" %}
 [openapi.yaml](https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml)
 {% endopenapi %}
 
-## Update webhook
+## Обновить webhook
 
 {% openapi src="https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml" path="/private/webhooks/{webhook}" method="patch" %}
 [openapi.yaml](https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml)
 {% endopenapi %}
 
-## Rotate webhook secret
+## Сменить webhook secret
 
 {% openapi src="https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml" path="/private/webhooks/{webhook}/rotate-secret" method="post" %}
 [openapi.yaml](https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml)
 {% endopenapi %}
-

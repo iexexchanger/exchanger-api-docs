@@ -1,4 +1,4 @@
-# API-ключи, HMAC secret и ротация
+# API-ключи, HMAC-секрет и ротация
 
 API-ключ состоит из Bearer token и дополнительных настроек безопасности. Если включена HMAC-подпись, вместе с token используется HMAC secret.
 
@@ -63,11 +63,11 @@ HMAC required: true/false
 
 Неправильно:
 
-- вставлять token в JavaScript на frontend;
+- вставлять токен в JavaScript на frontend;
 - хранить token в GitHub;
 - отправлять token в Telegram/Slack без защиты;
 - писать token в server logs;
-- прикладывать token к support ticket.
+- прикладывать токен к обращению в поддержку.
 
 ## Ротация ключа
 
@@ -93,4 +93,3 @@ HMAC required: true/false
 - в логах видны неизвестные запросы.
 
 После отзыва приватные запросы с этим token должны перестать работать.
-

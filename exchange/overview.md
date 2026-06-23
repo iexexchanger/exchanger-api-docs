@@ -41,7 +41,7 @@
 | --- | --- |
 | `id` | Внутренний ID заявки в API. |
 | `public_id` | Публичный номер заявки для интерфейса. |
-| `tracking_id` | Удобный идентификатор для статуса, webhook и support. |
+| `tracking_id` | Удобный идентификатор для статуса, webhook и обращения в поддержку. |
 | `status` | Текущий статус заявки. |
 | `amount` | Сумма, которую пользователь отдает. |
 | `receive_amount` | Сумма, которую пользователь получает. |
@@ -55,6 +55,6 @@
 - Подключите webhooks для статусов.
 - Используйте polling статуса только как запасной вариант.
 
-## OpenAPI Reference
+## API Reference
 
-Точные schemas, request body и responses для exchange endpoints находятся на странице [Exchange API Reference](../api-reference/exchange.md). Эта страница рендерится из `openapi/openapi.yaml` через GitBook OpenAPI blocks.
+Точные schemas, request body и responses для exchange endpoints находятся на странице [Exchange API Reference](../api-reference/exchange.md).

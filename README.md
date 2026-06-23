@@ -1,8 +1,8 @@
 # iEXExchanger API
 
-iEXExchanger API нужен, чтобы внешние приложения могли работать с обменником: получать направления и курсы, рассчитывать обмен, создавать заявки, отслеживать статусы, загружать файлы для проверок, получать webhooks и забирать партнерские данные.
+iEXExchanger API позволяет подключить обменник к внешнему сайту, мобильному приложению, Telegram-боту, CRM или партнерскому кабинету. Через API можно получить направления обмена, рассчитать сумму, создать заявку, проверить статус, загрузить документы и получать события через webhooks.
 
-Документация написана для людей, которые подключают API к своему продукту: разработчиков, технических специалистов, владельцев обменника и интеграторов.
+Эта документация отвечает на практические вопросы: как включить доступ, где клиент берет ключ, какие запросы отправлять, какие ответы ждать и как безопасно запустить интеграцию.
 
 ## Что можно сделать через API
 
@@ -30,19 +30,19 @@ iEXExchanger API нужен, чтобы внешние приложения мо
 | Backend-разработчик production-интеграции | [HMAC-подпись запросов](architecture/hmac-signature.md), [Idempotency-Key](architecture/idempotency.md), [Webhooks](webhooks/overview.md) |
 | Support | [Ошибки и как их обрабатывать](architecture/errors.md), [Решение частых проблем](troubleshooting/common-issues.md) |
 
-## Главный сценарий обмена
+## Главный сценарий подключения
 
-Обычная интеграция создает заявку так:
+Минимальный путь до рабочей интеграции:
 
 ```text
-1. Проверить доступ
-2. Получить платежные системы
-3. Получить направления обмена
-4. Получить возможности выбранного направления
-5. Рассчитать обмен
-6. Проверить заявку через preflight
-7. Создать заявку
-8. Получать статус через webhook или status endpoint
+1. Администратор включает API клиенту.
+2. Клиент создает ключ в Профиль -> Настройки -> API.
+3. Разработчик проверяет ключ через /private/health/client.
+4. Приложение получает платежные системы и направления.
+5. Приложение рассчитывает quote.
+6. Приложение проверяет данные через preflight.
+7. Приложение создает заявку с Idempotency-Key.
+8. Статусы приходят через webhook или читаются через status endpoint.
 ```
 
 ## Базовый URL
@@ -85,9 +85,9 @@ X-Api-Signature: sha256=...
 
 | Файл | Для чего нужен |
 | --- | --- |
-| `openapi/openapi.yaml` | OpenAPI specification для GitBook API Reference, Postman, Insomnia, генераторов клиентов. |
+| `openapi/openapi.yaml` | OpenAPI-файл со всеми endpoints, параметрами и схемами ответов. |
 | `sdk/php/PublicApiSigner.php` | PHP helper для подписи HMAC-запросов. |
-| `sdk/typescript/PublicApiClient.ts` | TypeScript client для запросов к API. |
+| `sdk/typescript/PublicApiClient.ts` | TypeScript-клиент для запросов к API. |
 
 Live OpenAPI также может быть доступен на установке:
 
@@ -95,8 +95,8 @@ Live OpenAPI также может быть доступен на установ
 https://{your-domain}/api/v3/openapi.yaml
 ```
 
-## Интерактивный API Reference
+## API Reference
 
-В GitBook документация подключает OpenAPI напрямую через OpenAPI blocks. Раздел [Интерактивный API Reference](api-reference/exchange.md) показывает endpoint cards из `openapi/openapi.yaml`: method, path, параметры, request body, responses и возможность тестирования endpoint-а внутри GitBook.
+Раздел [API Reference](api-reference/exchange.md) построен из `openapi/openapi.yaml`. В нем удобно смотреть точные параметры endpoints, request body, headers, responses и scopes.
 
-Если вы читаете документацию из GitHub, используйте Markdown guides как объяснение сценариев, а файл `openapi/openapi.yaml` можно открыть в Postman, Insomnia, Swagger UI или импортировать в GitBook.
+Руководства объясняют сценарии, а API Reference дает точный контракт запроса.

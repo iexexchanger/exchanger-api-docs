@@ -32,7 +32,7 @@ Fix:
 
 - add all production egress IPs;
 - check NAT/load balancer public IP;
-- check whether staging and production use different IPs.
+- проверьте, не отличаются ли IP в staging и production.
 
 ## `409 idempotency_conflict`
 

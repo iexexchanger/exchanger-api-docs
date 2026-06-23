@@ -1,26 +1,26 @@
 # System и Client
 
-Эта страница показывает базовые endpoints для проверки API, ключа клиента и usage.
+Endpoints для проверки доступности API, состояния ключа, профиля клиента и usage.
 
-## Public ping
+## Публичный ping
 
 {% openapi src="https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml" path="/ping" method="get" %}
 [openapi.yaml](https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml)
 {% endopenapi %}
 
-## Private ping
+## Приватный ping
 
 {% openapi src="https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml" path="/private/ping" method="get" %}
 [openapi.yaml](https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml)
 {% endopenapi %}
 
-## Client health
+## Проверка клиента и ключа
 
 {% openapi src="https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml" path="/private/health/client" method="get" %}
 [openapi.yaml](https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml)
 {% endopenapi %}
 
-## Client profile
+## Профиль клиента
 
 {% openapi src="https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml" path="/private/client" method="get" %}
 [openapi.yaml](https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml)
@@ -31,4 +31,3 @@
 {% openapi src="https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml" path="/private/usage" method="get" %}
 [openapi.yaml](https://raw.githubusercontent.com/iexexchanger/exchanger-api-docs/main/openapi/openapi.yaml)
 {% endopenapi %}
-

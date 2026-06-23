@@ -184,7 +184,7 @@ curl -sS https://example.com/api/v3/private/exchange/orders \
 }
 ```
 
-Сохраните `tracking_id`. Он нужен для статуса и support.
+Сохраните `tracking_id`. Он нужен для проверки статуса и обращения в поддержку.
 
 ## 9. Проверить статус
 
@@ -193,4 +193,3 @@ curl -sS https://example.com/api/v3/private/exchange/orders/TRK8K2LQ/status \
   -H "Accept: application/json" \
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
-
