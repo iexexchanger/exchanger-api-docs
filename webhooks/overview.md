@@ -89,3 +89,6 @@ curl -sS https://example.com/api/v3/private/webhooks/WEBHOOK_ID/rotate-secret \
 - возвращать `2xx` только после успешного сохранения события;
 - обрабатывать повторные события без дублей.
 
+## OpenAPI Reference
+
+Точные параметры webhook endpoints доступны на странице [Webhooks API Reference](../api-reference/webhooks.md).

@@ -263,3 +263,10 @@ curl -sS https://example.com/api/v3/private/exchange/orders/TRK8K2LQ/status \
 
 Для production лучше получать статусы через webhooks, а status endpoint использовать как fallback.
 
+## Интерактивные endpoint cards
+
+Точные параметры и схемы этих запросов доступны в OpenAPI-разделе:
+
+- [Exchange API Reference](../api-reference/exchange.md)
+- [Orders API Reference](../api-reference/orders.md)
+- [Webhooks API Reference](../api-reference/webhooks.md)

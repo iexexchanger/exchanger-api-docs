@@ -55,3 +55,6 @@
 - Подключите webhooks для статусов.
 - Используйте polling статуса только как запасной вариант.
 
+## OpenAPI Reference
+
+Точные schemas, request body и responses для exchange endpoints находятся на странице [Exchange API Reference](../api-reference/exchange.md). Эта страница рендерится из `openapi/openapi.yaml` через GitBook OpenAPI blocks.

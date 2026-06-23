@@ -97,3 +97,6 @@ curl -sS https://example.com/api/v3/private/verifications/cards \
 - Не храните документы дольше, чем нужно.
 - Используйте webhooks для изменения статуса проверки.
 
+## OpenAPI Reference
+
+Точные request body и responses для файлов и проверок доступны на странице [Files и Verifications API Reference](../api-reference/files-verifications.md).

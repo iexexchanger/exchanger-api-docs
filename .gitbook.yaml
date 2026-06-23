@@ -3,3 +3,8 @@ root: ./
 structure:
   readme: README.md
   summary: SUMMARY.md
+
+redirects:
+  start/gitbook-import: reference/openapi-reference.md
+  setup/enable-api-access: setup/admin-enable-api.md
+  reference/code-samples: examples/curl-create-order.md

@@ -94,3 +94,9 @@ Live OpenAPI также может быть доступен на установ
 ```text
 https://{your-domain}/api/v3/openapi.yaml
 ```
+
+## Интерактивный API Reference
+
+В GitBook документация подключает OpenAPI напрямую через OpenAPI blocks. Раздел [Интерактивный API Reference](api-reference/exchange.md) показывает endpoint cards из `openapi/openapi.yaml`: method, path, параметры, request body, responses и возможность тестирования endpoint-а внутри GitBook.
+
+Если вы читаете документацию из GitHub, используйте Markdown guides как объяснение сценариев, а файл `openapi/openapi.yaml` можно открыть в Postman, Insomnia, Swagger UI или импортировать в GitBook.

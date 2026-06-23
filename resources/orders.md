@@ -49,3 +49,4 @@ curl -sS https://example.com/api/v3/private/orders/TRK8K2LQ \
 
 Для активного exchange flow чаще используйте endpoints из раздела [Статусы и действия по заявке](../exchange/order-actions-statuses.md).
 
+Точные параметры списков и responses доступны на странице [Orders API Reference](../api-reference/orders.md).

@@ -41,6 +41,16 @@
 * [Как проверить подпись webhook](webhooks/delivery-signatures.md)
 * [История доставок и повторная отправка](webhooks/delivery-center.md)
 
+## Интерактивный API Reference
+
+* [Как подключен OpenAPI](reference/openapi-reference.md)
+* [System и Client](api-reference/system-client.md)
+* [Exchange](api-reference/exchange.md)
+* [Orders](api-reference/orders.md)
+* [Files и Verifications](api-reference/files-verifications.md)
+* [Webhooks](api-reference/webhooks.md)
+* [Partner, Reviews и Sandbox](api-reference/partner-reviews-sandbox.md)
+
 ## Дополнительные возможности
 
 * [Клиент, health и usage](resources/client-health-usage.md)
@@ -62,5 +72,4 @@
 * [Scopes и права ключа](reference/scopes.md)
 * [Фильтры списков](reference/filters.md)
 * [События webhooks](reference/webhook-events.md)
-* [OpenAPI и SDK](reference/openapi-reference.md)
 * [Решение частых проблем](troubleshooting/common-issues.md)
